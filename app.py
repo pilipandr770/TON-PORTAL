@@ -1,18 +1,44 @@
 # file: app.py
-from flask import Flask, render_template, jsonify, send_from_directory, abort
-from flask import request
+from flask import Flask, render_template, jsonify, send_from_directory, request
 from config import Settings
 import requests
 import logging
 import os
 import json
 
+# Rate limiting & caching
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_caching import Cache
+from logging.handlers import RotatingFileHandler
+
 app = Flask(__name__)
 app.config.from_object(Settings)
 
-# базове логування
+# ---- Logging (rotating file) ----
+os.makedirs("logs", exist_ok=True)
+file_handler = RotatingFileHandler("logs/app.log", maxBytes=2_000_000, backupCount=5)
+file_handler.setLevel(logging.INFO)
+file_formatter = logging.Formatter(
+    "%(asctime)s [%(levelname)s] %(name)s %(message)s"
+)
+file_handler.setFormatter(file_formatter)
+app.logger.addHandler(file_handler)
+
+# базове логування (консоль)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("ton-staking-portal")
+
+# ---- Rate Limiter ----
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["200 per hour"],
+    storage_uri="memory://"
+)
+
+# ---- Cache ----
+cache = Cache(app, config={"CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 30})
 
 # Безпечні заголовки у відповідях
 @app.after_request
@@ -69,25 +95,33 @@ def agb():
 def disclaimer():
     return render_template("disclaimer.html", title="Disclaimer")
 
-# Healthcheck
+# ---- Health & Version ----
 @app.route("/healthz")
 def healthz():
     return jsonify({"status": "ok"})
 
-# TonConnect manifest (локальний; поки лежить у /static)
+@app.route("/version")
+def version():
+    git_sha = os.getenv("GIT_COMMIT_SHA", "dev")
+    return jsonify({"version": git_sha})
+
+# ---- TonConnect manifest (локальний) ----
 @app.route("/tonconnect-manifest.json")
 def tc_manifest():
     return send_from_directory("static", "tonconnect-manifest.json", mimetype="application/json")
 
-# API: баланс через TON Center
+# ---- API: balance (limited + cached) ----
+@limiter.limit("10 per minute")
+@cache.cached(timeout=30, query_string=True)
 @app.route("/api/balance/<address>")
 def api_balance(address: str):
     """
     Повертає баланс адреси у нанотонах (та TON), якщо налаштовано TONCENTER_API_KEY.
     Інакше — mock-відповідь для демо.
+    Кеш: 30s. Rate limit: 10/min per IP.
     """
-    mainnet = app.config["TON_MAINNET"]
-    api_key = app.config["TONCENTER_API_KEY"]
+    mainnet = app.config.get("TON_MAINNET", True)
+    api_key = app.config.get("TONCENTER_API_KEY", "")
     if not api_key:
         # демо-дані
         return jsonify({
@@ -119,7 +153,7 @@ def api_balance(address: str):
         logger.exception("TON Center API error")
         return jsonify({"error": "TON API error", "details": str(e)}), 502
 
-# API: каталог пулів
+# ---- API: pools (no limit; lightweight) ----
 @app.route("/api/pools")
 def api_pools():
     """
@@ -134,7 +168,16 @@ def api_pools():
         logger.exception("pools.json error")
         return jsonify({"error": "pools.json not available", "details": str(e)}), 500
 
-# 404 / 500
+# ---- OpenAPI docs ----
+@app.route("/docs")
+def docs():
+    return render_template("docs.html", title="API Docs (OpenAPI)")
+
+@app.route("/openapi.yaml")
+def openapi_yaml():
+    return send_from_directory(".", "openapi.yaml", mimetype="text/yaml")
+
+# ---- Errors ----
 @app.errorhandler(404)
 def h_404(e):
     return render_template("404.html"), 404

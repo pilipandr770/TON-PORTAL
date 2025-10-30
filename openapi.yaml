@@ -1,0 +1,188 @@
+# file: openapi.yaml
+openapi: 3.1.0
+info:
+  title: TON Staking Portal API
+  version: "1.0.0"
+  description: |
+    Öffentliche API des TON Staking Portals.
+    
+    **Wichtig:** Keine Verwahrung, keine Finanzdienstleistungen. 
+    Diese API dient ausschließlich zur Anzeige öffentlicher Blockchain-Daten.
+  contact:
+    name: TON Staking Portal
+    url: https://github.com/pilipandr770/TON-PORTAL
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: /
+    description: Current server
+
+tags:
+  - name: Balance
+    description: TON wallet balance information
+  - name: Pools
+    description: Curated TON staking pools
+
+paths:
+  /api/balance/{address}:
+    get:
+      summary: Get TON balance
+      description: |
+        Retrieves the balance of a TON wallet address using TON Center API.
+        
+        **Rate limit:** 10 requests per minute per IP
+        
+        **Cache:** 30 seconds
+      tags:
+        - Balance
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+          description: TON wallet address (base64 or raw format)
+          example: "EQDtFpEwcFAEcRe5mLVh2N6C0x-_hJEM7W61_JLnSF74p4q2"
+      responses:
+        "200":
+          description: Balance information retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  network:
+                    type: string
+                    description: Network type (mainnet, testnet, or mock)
+                    example: "mainnet"
+                  address:
+                    type: string
+                    description: The queried wallet address
+                  balance_nano:
+                    type: integer
+                    description: Balance in nanotons (1 TON = 10^9 nanotons)
+                    example: 1234567890
+                  balance_ton:
+                    type: number
+                    format: float
+                    description: Balance in TON
+                    example: 1.23456789
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Rate limit exceeded"
+        "502":
+          description: Upstream TON Center API error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "TON API error"
+                  details:
+                    type: string
+                    description: Error details
+
+  /api/pools:
+    get:
+      summary: List curated TON pools
+      description: |
+        Returns a list of curated TON staking pools.
+        
+        **No rate limit** - lightweight endpoint
+      tags:
+        - Pools
+      responses:
+        "200":
+          description: List of pools retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: Pool name
+                          example: "Partner Pool A"
+                        address:
+                          type: string
+                          description: Pool smart contract address
+                          example: "EQC_example_pool_A"
+                        url:
+                          type: string
+                          format: uri
+                          description: Pool website URL
+                          example: "https://example-pool-a.ton"
+                        fee:
+                          type: number
+                          format: float
+                          description: Pool fee (0.05 = 5%)
+                          example: 0.05
+                        min_stake_ton:
+                          type: integer
+                          description: Minimum stake in TON
+                          example: 10
+        "500":
+          description: Server error reading pools data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "pools.json not available"
+                  details:
+                    type: string
+
+  /healthz:
+    get:
+      summary: Health check
+      description: Simple health check endpoint for monitoring
+      tags:
+        - System
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok"
+
+  /version:
+    get:
+      summary: Get version information
+      description: Returns the current deployment version (Git commit SHA)
+      tags:
+        - System
+      responses:
+        "200":
+          description: Version information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version:
+                    type: string
+                    description: Git commit SHA or "dev" for development
+                    example: "abc123def456"

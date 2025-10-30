@@ -6,8 +6,14 @@
 - 📊 Каталог TON пулів з API
 - 🇩🇪 Німецькі правові сторінки: Impressum, Datenschutz, AGB
 - 🔒 Посилена безпека: HSTS, CSP, безпечні заголовки
-- 🐳 Docker підтримка
-- ✅ Автоматичне тестування (pytest)
+- ⚡ **Rate Limiting** (10 req/min для /api/balance)
+- 💾 **Кешування** (30s для balance API)
+- 📝 **Production логування** (rotating files, 2MB max)
+- � **API Documentation** (OpenAPI + Swagger UI)
+- 🏷️ **Версіонування** (Git SHA tracking)
+- 🍪 **GDPR Cookie Consent** (без трекерів)
+- �🐳 Docker підтримка
+- ✅ Автоматичне тестування (9 smoke tests)
 - 🤖 GitHub Actions CI/CD
 
 **Ми не зберігаємо кошти та приватні ключі.** Це лише інтерфейс.
@@ -98,13 +104,21 @@ TON/
 
 ## API Endpoints
 
+### Pages
 - `GET /` - Головна сторінка
 - `GET /dashboard` - Dashboard з TonConnect
 - `GET /pools` - Каталог TON пулів
-- `GET /healthz` - Health check (для моніторингу)
-- `GET /api/balance/<address>` - Отримати баланс TON адреси
-- `GET /api/pools` - API каталогу пулів (JSON)
+- `GET /docs` - **API Documentation** (Swagger UI) ✨
+
+### API
+- `GET /api/balance/<address>` - Баланс TON адреси (⚡ rate limited, 💾 cached)
+- `GET /api/pools` - Каталог пулів (JSON)
+
+### System
+- `GET /healthz` - Health check
+- `GET /version` - Version info (Git SHA) ✨
 - `GET /tonconnect-manifest.json` - TonConnect manifest
+- `GET /openapi.yaml` - OpenAPI specification ✨
 
 ## Тестування
 

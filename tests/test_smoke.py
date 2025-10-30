@@ -64,3 +64,26 @@ def test_tonconnect_manifest(client):
     response = client.get('/tonconnect-manifest.json')
     assert response.status_code == 200
     assert response.content_type == 'application/json'
+
+
+def test_version(client):
+    """Тест version endpoint"""
+    response = client.get('/version')
+    assert response.status_code == 200
+    assert response.is_json
+    data = response.get_json()
+    assert 'version' in data
+
+
+def test_docs_page(client):
+    """Тест сторінки документації API"""
+    response = client.get('/docs')
+    assert response.status_code == 200
+    assert b'API Dokumentation' in response.data
+
+
+def test_openapi_yaml(client):
+    """Тест OpenAPI специфікації"""
+    response = client.get('/openapi.yaml')
+    assert response.status_code == 200
+    assert 'text/yaml' in response.content_type
