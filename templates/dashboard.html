@@ -1,0 +1,35 @@
+<!-- file: templates/dashboard.html -->
+{% extends "base.html" %}
+{% block content %}
+<h1>Dashboard</h1>
+
+<div class="card">
+  <h3>Wallet-Verbindung</h3>
+  <p id="wallet-status">Noch nicht verbunden.</p>
+  <div class="btn-row">
+    <button id="btn-connect" class="btn">Wallet verbinden</button>
+    <button id="btn-disconnect" class="btn btn-secondary" disabled>Trennen</button>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Balance</h3>
+  <p><strong>Adresse:</strong> <span id="addr">—</span></p>
+  <p><strong>Netzwerk:</strong> <span id="net">—</span></p>
+  <p><strong>Balance:</strong> <span id="bal">—</span> TON</p>
+  <button id="btn-refresh" class="btn btn-secondary" disabled>Aktualisieren</button>
+</div>
+
+<div class="card">
+  <h3>Staking / Pools</h3>
+  <p>Wähle einen DePool oder Partnerpool (demnächst). Delegationen werden ausschließlich in deinem Wallet signiert.</p>
+  <ul>
+    <li>Partner Pool A – <em>bald verfügbar</em></li>
+    <li>Partner Pool B – <em>bald verfügbar</em></li>
+  </ul>
+</div>
+
+<script>
+  window.addEventListener('DOMContentLoaded', () => window.TonUI && window.TonUI.initDashboard());
+</script>
+{% endblock %}

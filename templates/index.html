@@ -1,0 +1,19 @@
+<!-- file: templates/index.html -->
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>Staking in TON – einfach, sicher, transparent.</h1>
+  <p>Verbinde deinen Wallet, wähle einen Pool und unterstütze das TON-Netzwerk. 
+     Du behältst jederzeit die volle Kontrolle – wir bieten nur die Software-Schnittstelle.</p>
+  <a class="btn" href="{{ url_for('dashboard') }}">Zum Dashboard</a>
+</section>
+
+<section>
+  <h2>Warum über unsere Plattform?</h2>
+  <ul class="grid-3">
+    <li><strong>Einfach:</strong> Verbindung via TonConnect, klare Schritte, keine Registrierung.</li>
+    <li><strong>Sicher:</strong> Keine Verwahrung von Geldern, keine privaten Schlüssel bei uns.</li>
+    <li><strong>Transparent:</strong> Deutsche Rechtstexte, klare Risiken, variable Rewards.</li>
+  </ul>
+</section>
+{% endblock %}

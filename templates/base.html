@@ -1,0 +1,40 @@
+<!-- file: templates/base.html -->
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>{{ title or "TON Staking Portal" }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"/>
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="{{ url_for('index') }}">
+    <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="Logo"/>
+    <span>TON Staking Portal</span>
+  </a>
+  <nav>
+    <a href="{{ url_for('how') }}">Wie es funktioniert</a>
+    <a href="{{ url_for('faq') }}">FAQ</a>
+    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+  </nav>
+</header>
+
+<main class="container">
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+  <div>
+    <a href="{{ url_for('impressum') }}">Impressum</a> ·
+    <a href="{{ url_for('datenschutz') }}">Datenschutzerklärung</a> ·
+    <a href="{{ url_for('agb') }}">AGB</a> ·
+    <a href="{{ url_for('disclaimer') }}">Disclaimer</a>
+  </div>
+  <small>© {{ 2025 }} TON Staking Portal — Software-Dienstleistung (keine Verwahrung, keine Finanzberatung).</small>
+</footer>
+
+<script src="https://unpkg.com/@tonconnect/sdk@latest/dist/tonconnect-sdk.min.js"></script>
+<script src="{{ url_for('static', filename='js/tonconnect.js') }}"></script>
+</body>
+</html>
