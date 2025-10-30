@@ -28,22 +28,35 @@ window.TonUI = (function () {
 
   // Ініціалізація TonConnect UI
   function initTonConnect() {
-    if (tonConnectUI) return; // Вже ініціалізовано
+    if (tonConnectUI) {
+      console.log('TonConnect UI already initialized');
+      return; // Вже ініціалізовано
+    }
+    
+    console.log('Starting TonConnect UI initialization...');
     
     try {
       // Перевірка наявності TonConnect UI у глобальній області
       // @tonconnect/ui експортує TonConnectUI глобально
       if (typeof TonConnectUI === 'undefined') {
         console.error('TonConnect UI not loaded. Make sure the script is loaded.');
+        console.error('Available global objects:', Object.keys(window).filter(k => k.includes('Ton') || k.includes('TON')));
         setStatus('Fehler: TonConnect UI nicht geladen.');
         return;
       }
 
+      console.log('TonConnectUI class found, creating instance...');
+
       // Створити екземпляр TonConnectUI
+      const manifestUrl = window.location.origin + '/tonconnect-manifest.json';
+      console.log('Manifest URL:', manifestUrl);
+      
       tonConnectUI = new TonConnectUI({
-        manifestUrl: window.location.origin + '/tonconnect-manifest.json',
+        manifestUrl: manifestUrl,
         buttonRootId: null // Не використовуємо вбудовану кнопку
       });
+      
+      console.log('TonConnectUI instance created');
 
       // Підписка на зміни статусу підключення
       tonConnectUI.onStatusChange(wallet => {
@@ -71,30 +84,40 @@ window.TonUI = (function () {
         }
       });
 
-      console.log('TonConnect UI initialized');
+      console.log('TonConnect UI initialized successfully');
+      setStatus('Bereit zum Verbinden.');
     } catch (e) {
       console.error('TonConnect UI initialization error:', e);
-      setStatus('Fehler beim Laden von TonConnect.');
+      console.error('Error details:', e.message, e.stack);
+      setStatus('Fehler beim Laden von TonConnect: ' + e.message);
     }
   }
 
   async function connect() {
+    console.log('Connect button clicked');
+    
     try {
       if (!tonConnectUI) {
+        console.log('TonConnectUI not initialized, initializing now...');
         initTonConnect();
         if (!tonConnectUI) {
+          console.error('Failed to initialize TonConnectUI');
           alert('TonConnect UI konnte nicht geladen werden. Bitte Seite neu laden.');
           return;
         }
       }
 
+      console.log('Setting status: Connecting...');
       setStatus('Verbindung wird hergestellt...');
       
+      console.log('Opening modal...');
       // Відкрити модальне вікно з QR-кодом
       await tonConnectUI.openModal();
+      console.log('Modal opened successfully');
       
     } catch (e) {
       console.error('TonConnect error:', e);
+      console.error('Error details:', e.message, e.stack);
       setStatus('Verbindung fehlgeschlagen: ' + e.message);
     }
   }
@@ -195,12 +218,8 @@ window.TonUI = (function () {
   }
 
   function initDashboard() {
-    // Ініціалізувати TonConnect UI при завантаженні сторінки
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initTonConnect);
-    } else {
-      initTonConnect();
-    }
+    // Ініціалізувати TonConnect UI
+    initTonConnect();
 
     const btnConnect = document.getElementById('btn-connect');
     const btnDisconnect = document.getElementById('btn-disconnect');

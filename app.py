@@ -120,6 +120,10 @@ def agb():
 def disclaimer():
     return render_template("disclaimer.html", title="Disclaimer")
 
+@app.route("/debug")
+def debug_page():
+    return render_template("debug.html", title="Debug Page")
+
 # ---- Health & Version ----
 @app.route("/healthz")
 def healthz():
