@@ -56,28 +56,16 @@
 
 <script>
   window.addEventListener('DOMContentLoaded', () => {
-    console.log('Dashboard DOMContentLoaded');
-    console.log('window.TonUI available:', !!window.TonUI);
-    
     if (window.TonUI) {
-      console.log('Initializing TonUI dashboard...');
       window.TonUI.initDashboard();
 
       // Підвантажуємо список пулів у селект
-      console.log('Fetching pools from /api/pools...');
       fetch('/api/pools')
-        .then(r => {
-          console.log('Pools response status:', r.status);
-          return r.json();
-        })
+        .then(r => r.json())
         .then(data => {
-          console.log('Pools data received:', data);
           const sel = document.getElementById('pool-select');
-          if (!data.items) {
-            console.warn('No items in pools data');
-            return;
-          }
-          console.log('Adding', data.items.length, 'pools to select');
+          if (!data.items) return;
+          
           data.items.forEach(p => {
             const opt = document.createElement('option');
             opt.value = p.address;
@@ -86,7 +74,6 @@
             opt.dataset.min = p.min_stake_ton || 0;
             sel.appendChild(opt);
           });
-          console.log('Pools loaded successfully');
         })
         .catch(err => {
           console.error('Error loading pools:', err);
@@ -157,8 +144,7 @@
         }
       });
     } else {
-      console.error('window.TonUI not found! Check if tonconnect.js is loaded.');
-      console.error('Available window objects:', Object.keys(window).filter(k => k.toLowerCase().includes('ton')));
+      console.error('TonUI module not loaded');
     }
   });
 </script>

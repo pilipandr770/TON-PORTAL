@@ -10,17 +10,12 @@
 
 <script>
   async function loadPools() {
-    console.log('loadPools called');
     const el = document.getElementById('pools-container');
     el.innerHTML = '<p>Laden...</p>';
     try {
-      console.log('Fetching /api/pools...');
       const res = await fetch('/api/pools');
-      console.log('Response status:', res.status);
       const data = await res.json();
-      console.log('Pools data:', data);
       if (data.items && Array.isArray(data.items)) {
-        console.log('Found', data.items.length, 'pools');
         el.innerHTML = data.items.map(p => `
           <div class="card" style="margin:12px 0;">
             <h3>${p.name}</h3>
@@ -31,16 +26,13 @@
           </div>
         `).join('');
       } else {
-        console.warn('No items array in data:', data);
         el.innerHTML = '<p>Keine Daten.</p>';
       }
     } catch (e) {
       console.error('Error loading pools:', e);
-      console.error('Error details:', e.message, e.stack);
-      el.innerHTML = '<p>Fehler beim Laden der Pool-Daten: ' + e.message + '</p>';
+      el.innerHTML = '<p>Fehler beim Laden der Pool-Daten.</p>';
     }
   }
-  console.log('Registering DOMContentLoaded listener for loadPools');
   window.addEventListener('DOMContentLoaded', loadPools);
 </script>
 {% endblock %}
