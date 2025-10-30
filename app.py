@@ -74,12 +74,12 @@ def set_security_headers(resp):
     resp.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
     # HSTS (увімкни на проді з HTTPS)
     resp.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
-    # CSP: дозволяємо локальні скрипти + (за потреби) unpkg
+    # CSP: дозволяємо локальні скрипти + unpkg + inline scripts для dashboard
     resp.headers["Content-Security-Policy"] = (
         "default-src 'self'; "
         "img-src 'self' data:; "
         "style-src 'self' 'unsafe-inline'; "
-        "script-src 'self' https://unpkg.com; "
+        "script-src 'self' 'unsafe-inline' https://unpkg.com; "
         "connect-src 'self' https://toncenter.com https://testnet.toncenter.com;"
     )
     return resp
@@ -119,22 +119,6 @@ def agb():
 @app.route("/disclaimer")
 def disclaimer():
     return render_template("disclaimer.html", title="Disclaimer")
-
-@app.route("/debug")
-def debug_page():
-    return render_template("debug.html", title="Debug Page")
-
-@app.route("/simple-test")
-def simple_test():
-    return render_template("simple_test.html", title="Simple Test")
-
-@app.route("/pools-test")
-def pools_test():
-    return render_template("pools_test.html", title="Pools Test")
-
-@app.route("/minimal-test")
-def minimal_test():
-    return render_template("minimal_test.html", title="Minimal Test")
 
 # ---- Health & Version ----
 @app.route("/healthz")
