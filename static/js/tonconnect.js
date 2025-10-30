@@ -124,6 +124,62 @@ window.TonUI = (function () {
     }
   }
 
+  /**
+   * Надсилає транзакцію делегування (простий внутрішній переказ TON на адресу пулу).
+   * @param {string} poolAddress - адреса пулу (base64 standard або raw)
+   * @param {number} amountTon - сума в TON
+   * @returns {Promise<boolean>} true якщо відправлено, false якщо скасовано
+   */
+  async function sendStake(poolAddress, amountTon) {
+    if (!connector || !connectedAddress) {
+      setStatus('Verbinde zuerst dein Wallet.');
+      alert('Bitte verbinde zuerst dein Wallet.');
+      return false;
+    }
+    
+    if (!poolAddress || !amountTon || amountTon <= 0) {
+      alert('Ungültige Pool-Adresse oder Menge.');
+      return false;
+    }
+
+    // TonConnect очікує значення в нанотонах рядком
+    const amountNano = BigInt(Math.floor(amountTon * 1e9)).toString();
+
+    try {
+      console.log('Sending stake:', {
+        poolAddress,
+        amountTon,
+        amountNano
+      });
+
+      await connector.sendTransaction({
+        validUntil: Math.floor(Date.now() / 1000) + 300, // 5 хвилин
+        messages: [
+          {
+            address: poolAddress,
+            amount: amountNano
+            // payload: "" // Якщо конкретний пул вимагає payload, додамо поле у pools.json і тут підставимо
+          }
+        ]
+      });
+      
+      console.log('Stake transaction sent successfully');
+      return true;
+    } catch (e) {
+      // Користувач міг скасувати або сталася помилка
+      console.warn('sendStake canceled or failed:', e);
+      
+      // Перевірка чи це скасування користувачем
+      if (e.message && e.message.includes('reject')) {
+        console.log('Transaction rejected by user');
+        return false;
+      }
+      
+      // Інші помилки
+      throw e;
+    }
+  }
+
   function initDashboard() {
     const btnConnect = document.getElementById('btn-connect');
     const btnDisconnect = document.getElementById('btn-disconnect');
@@ -142,5 +198,5 @@ window.TonUI = (function () {
     }
   }
 
-  return { initDashboard };
+  return { initDashboard, sendStake };
 })();

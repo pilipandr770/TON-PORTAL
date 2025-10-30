@@ -149,8 +149,78 @@ nav a {
   line-height: 1.8;
 }
 
+/* Стилі для форми делегування */
+.stake-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+  margin-top: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--bg);
+  border: 1px solid #2a3342;
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.form-control:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.form-hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.form-hint.error {
+  color: #ff6b6b;
+}
+
+.stake-result {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.stake-result.success {
+  background: rgba(54, 215, 183, 0.1);
+  border: 1px solid rgba(54, 215, 183, 0.3);
+  color: var(--accent);
+}
+
+.stake-result.error {
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  color: #ff6b6b;
+}
+
 @media (max-width: 820px) {
   .grid-3 {
+    grid-template-columns: 1fr;
+  }
+  
+  .stake-form {
     grid-template-columns: 1fr;
   }
   

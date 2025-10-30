@@ -21,15 +21,126 @@
 </div>
 
 <div class="card">
+  <h3>Stake in Pool</h3>
+  <p>Wähle einen Pool aus dem Katalog und gib die Menge in TON ein. 
+     Die Delegation wird ausschließlich in deinem Wallet signiert (wir verwahren nichts).</p>
+
+  <div class="stake-form">
+    <div class="form-group">
+      <label for="pool-select"><strong>Pool</strong></label>
+      <select id="pool-select" class="form-control">
+        <option value="">— Pool wählen —</option>
+      </select>
+      <small id="pool-meta" class="form-hint"></small>
+    </div>
+    
+    <div class="form-group">
+      <label for="stake-amount"><strong>Menge (TON)</strong></label>
+      <input id="stake-amount" type="number" step="0.01" min="0" 
+             placeholder="z.B. 10" class="form-control"/>
+    </div>
+    
+    <div class="form-group">
+      <button id="btn-stake" class="btn" disabled>Delegieren</button>
+    </div>
+  </div>
+
+  <div id="stake-result" class="stake-result"></div>
+</div>
+
+<div class="card">
   <h3>Staking / Pools</h3>
-  <p>Wähle einen DePool oder Partnerpool (demnächst). Delegationen werden ausschließlich in deinem Wallet signiert.</p>
-  <ul>
-    <li>Partner Pool A – <em>bald verfügbar</em></li>
-    <li>Partner Pool B – <em>bald verfügbar</em></li>
-  </ul>
+  <p>Vollständiger Katalog: <a href="{{ url_for('pools_page') }}">Pools</a></p>
+  <p>Delegationen werden ausschließlich in deinem Wallet signiert. Keine Verwahrung durch diese Plattform.</p>
 </div>
 
 <script>
-  window.addEventListener('DOMContentLoaded', () => window.TonUI && window.TonUI.initDashboard());
+  window.addEventListener('DOMContentLoaded', () => {
+    if (window.TonUI) {
+      window.TonUI.initDashboard();
+
+      // Підвантажуємо список пулів у селект
+      fetch('/api/pools')
+        .then(r => r.json())
+        .then(data => {
+          const sel = document.getElementById('pool-select');
+          if (!data.items) return;
+          data.items.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p.address;
+            opt.textContent = `${p.name} (${p.min_stake_ton} TON min, Fee ${(p.fee*100).toFixed(1)}%)`;
+            opt.dataset.url = p.url || '';
+            opt.dataset.min = p.min_stake_ton || 0;
+            sel.appendChild(opt);
+          });
+        })
+        .catch(console.error);
+
+      const sel = document.getElementById('pool-select');
+      const amount = document.getElementById('stake-amount');
+      const btnStake = document.getElementById('btn-stake');
+      const meta = document.getElementById('pool-meta');
+
+      function validate() {
+        const addr = sel.value;
+        const val = parseFloat(amount.value || '0');
+        const min = parseFloat(sel.selectedOptions[0]?.dataset?.min || '0');
+        const ok = addr && val > 0 && val >= min;
+        btnStake.disabled = !ok;
+        
+        if (addr) {
+          meta.textContent = `Min Stake: ${min} TON`;
+          meta.className = 'form-hint';
+        } else {
+          meta.textContent = '';
+        }
+        
+        if (addr && val > 0 && val < min) {
+          meta.textContent = `⚠️ Mindestens ${min} TON erforderlich`;
+          meta.className = 'form-hint error';
+        }
+      }
+
+      sel.addEventListener('change', validate);
+      amount.addEventListener('input', validate);
+
+      btnStake.addEventListener('click', async () => {
+        const poolAddr = sel.value;
+        const valTon = parseFloat(amount.value || '0');
+        const result = document.getElementById('stake-result');
+        result.textContent = '⏳ Sende Transaktion...';
+        result.className = 'stake-result';
+        
+        try {
+          const ok = await window.TonUI.sendStake(poolAddr, valTon);
+          if (ok) {
+            const user = document.getElementById('addr').textContent;
+            const viewer = `https://tonviewer.com/${encodeURIComponent(user)}?section=transactions`;
+            result.innerHTML = `✅ Transaktion gesendet! <a href="${viewer}" target="_blank" rel="noopener">Verlauf ansehen →</a>`;
+            result.className = 'stake-result success';
+            
+            // Скинути форму
+            amount.value = '';
+            validate();
+            
+            // Оновити баланс через 3 секунди
+            setTimeout(() => {
+              const btnRefresh = document.getElementById('btn-refresh');
+              if (btnRefresh && !btnRefresh.disabled) {
+                btnRefresh.click();
+              }
+            }, 3000);
+          } else {
+            result.textContent = '❌ Transaktion abgebrochen oder fehlgeschlagen.';
+            result.className = 'stake-result error';
+          }
+        } catch (e) {
+          console.error(e);
+          result.textContent = '❌ Fehler beim Senden: ' + e.message;
+          result.className = 'stake-result error';
+        }
+      });
+    }
+  });
 </script>
 {% endblock %}

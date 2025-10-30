@@ -87,3 +87,21 @@ def test_openapi_yaml(client):
     response = client.get('/openapi.yaml')
     assert response.status_code == 200
     assert 'text/yaml' in response.content_type
+
+
+def test_dashboard_has_stake_form(client):
+    """Тест наявності форми делегування на Dashboard"""
+    response = client.get('/dashboard')
+    assert response.status_code == 200
+    assert b'Stake in Pool' in response.data
+    assert b'pool-select' in response.data
+    assert b'stake-amount' in response.data
+    assert b'btn-stake' in response.data
+
+
+def test_tonconnect_js_has_sendstake(client):
+    """Тест наявності функції sendStake у tonconnect.js"""
+    response = client.get('/static/js/tonconnect.js')
+    assert response.status_code == 200
+    assert b'sendStake' in response.data
+    assert b'sendTransaction' in response.data
