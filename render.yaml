@@ -9,6 +9,8 @@ services:
     envVars:
       - key: SECRET_KEY
         generateValue: true
+      - key: APP_URL
+        value: "https://ton-portal.onrender.com"
       - key: TON_MAINNET
         value: "true"
       - key: TONCENTER_API_KEY

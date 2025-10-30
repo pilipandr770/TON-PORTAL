@@ -1,7 +1,7 @@
 {
-  "url": "https://YOUR_DOMAIN",
+  "url": "https://ton-portal.onrender.com",
   "name": "TON Staking Portal",
-  "iconUrl": "https://YOUR_DOMAIN/static/img/logo.svg",
-  "termsOfUseUrl": "https://YOUR_DOMAIN/agb",
-  "privacyPolicyUrl": "https://YOUR_DOMAIN/datenschutz"
+  "iconUrl": "https://ton-portal.onrender.com/static/img/logo.svg",
+  "termsOfUseUrl": "https://ton-portal.onrender.com/agb",
+  "privacyPolicyUrl": "https://ton-portal.onrender.com/datenschutz"
 }
