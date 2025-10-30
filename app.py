@@ -124,6 +124,18 @@ def disclaimer():
 def debug_page():
     return render_template("debug.html", title="Debug Page")
 
+@app.route("/simple-test")
+def simple_test():
+    return render_template("simple_test.html", title="Simple Test")
+
+@app.route("/pools-test")
+def pools_test():
+    return render_template("pools_test.html", title="Pools Test")
+
+@app.route("/minimal-test")
+def minimal_test():
+    return render_template("minimal_test.html", title="Minimal Test")
+
 # ---- Health & Version ----
 @app.route("/healthz")
 def healthz():

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Pools Test</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .log { background: #f0f0f0; padding: 10px; margin: 10px 0; font-family: monospace; }
+        .error { background: #ffcccc; }
+        .success { background: #ccffcc; }
+    </style>
+</head>
+<body>
+    <h1>Pools Loading Test</h1>
+    <button id="testBtn">Load Pools</button>
+    <div id="logs"></div>
+    <div id="result"></div>
+    
+    <script>
+        function log(msg, isError = false) {
+            const div = document.createElement('div');
+            div.className = 'log' + (isError ? ' error' : '');
+            div.textContent = new Date().toLocaleTimeString() + ': ' + msg;
+            document.getElementById('logs').appendChild(div);
+            console.log(msg);
+        }
+        
+        log('Page loaded');
+        
+        document.getElementById('testBtn').addEventListener('click', async function() {
+            log('Button clicked - starting fetch');
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                log('Fetching /api/pools...');
+                const response = await fetch('/api/pools');
+                log('Response received. Status: ' + response.status);
+                
+                const data = await response.json();
+                log('JSON parsed successfully');
+                log('Data: ' + JSON.stringify(data));
+                
+                if (data.items && Array.isArray(data.items)) {
+                    log('✅ SUCCESS: Found ' + data.items.length + ' pools', false);
+                    resultDiv.className = 'log success';
+                    resultDiv.innerHTML = '<h3>Pools:</h3>' + 
+                        data.items.map(p => `<div>${p.name} - ${p.address}</div>`).join('');
+                } else {
+                    log('❌ ERROR: No items array in response', true);
+                    resultDiv.className = 'log error';
+                    resultDiv.textContent = JSON.stringify(data);
+                }
+            } catch (error) {
+                log('❌ EXCEPTION: ' + error.message, true);
+                log('Stack: ' + error.stack, true);
+                resultDiv.className = 'log error';
+                resultDiv.textContent = 'Error: ' + error.message;
+            }
+        });
+        
+        log('Event listener attached');
+    </script>
+</body>
+</html>
