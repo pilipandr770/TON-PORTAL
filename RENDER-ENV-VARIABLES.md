@@ -71,11 +71,17 @@ $RENDER_GIT_COMMIT
 - Key: `DATABASE_URL`
 - Value: `postgresql://ittoken_db_user:Xm98VVSZv7cMJkopkdWRkgvZzC7Aly42@dpg-d0visga4d50c73ekmu4g-a.frankfurt-postgres.render.com/ittoken_db`
 
-### 4️⃣ TONCENTER_API_KEY
+### 4️⃣ DB_SCHEMA
+- Key: `DB_SCHEMA`
+- Value: `ton_staking_portal`
+
+**⚠️ ВАЖЛИВО:** Це ім'я схеми для ізоляції від інших проектів у тій же БД!
+
+### 5️⃣ TONCENTER_API_KEY
 - Key: `TONCENTER_API_KEY`
 - Value: [ваш ключ]
 
-### 5️⃣ GIT_COMMIT_SHA
+### 6️⃣ GIT_COMMIT_SHA
 - Key: `GIT_COMMIT_SHA`
 - Value: `$RENDER_GIT_COMMIT`
 

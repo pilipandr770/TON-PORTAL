@@ -12,7 +12,8 @@ import logging
 logger = logging.getLogger("ton-staking-portal.db")
 
 # Назва схеми для цього проекту
-SCHEMA_NAME = "ton_staking_portal"
+# Можна перевизначити через environment variable DB_SCHEMA
+SCHEMA_NAME = os.getenv("DB_SCHEMA", "ton_staking_portal")
 
 
 def get_db_connection():
