@@ -1,9 +1,9 @@
 // file: static/js/tonconnect.js
-// Простий шар для підключення TonConnect у браузері.
-// Використовує CDN @tonconnect/sdk у base.html (unpkg).
+// TonConnect UI integration для QR-кодів і модального вікна підключення
+// Використовує @tonconnect/ui з CDN (base.html)
 
 window.TonUI = (function () {
-  let connector = null;
+  let tonConnectUI = null;
   let connectedAddress = null;
 
   function setStatus(msg) {
@@ -26,54 +26,73 @@ window.TonUI = (function () {
     if (el) el.textContent = typeof bal === 'number' ? bal.toFixed(4) : '—';
   }
 
+  // Ініціалізація TonConnect UI
+  function initTonConnect() {
+    if (tonConnectUI) return; // Вже ініціалізовано
+    
+    try {
+      // Перевірка наявності TonConnect UI у глобальній області
+      // @tonconnect/ui експортує TonConnectUI глобально
+      if (typeof TonConnectUI === 'undefined') {
+        console.error('TonConnect UI not loaded. Make sure the script is loaded.');
+        setStatus('Fehler: TonConnect UI nicht geladen.');
+        return;
+      }
+
+      // Створити екземпляр TonConnectUI
+      tonConnectUI = new TonConnectUI({
+        manifestUrl: window.location.origin + '/tonconnect-manifest.json',
+        buttonRootId: null // Не використовуємо вбудовану кнопку
+      });
+
+      // Підписка на зміни статусу підключення
+      tonConnectUI.onStatusChange(wallet => {
+        if (wallet) {
+          connectedAddress = wallet.account.address;
+          console.log('Wallet connected:', connectedAddress);
+          setStatus('Verbunden.');
+          setAddr(connectedAddress);
+          
+          document.getElementById('btn-disconnect')?.removeAttribute('disabled');
+          document.getElementById('btn-refresh')?.removeAttribute('disabled');
+          
+          // Автоматично завантажити баланс
+          refreshBalance();
+        } else {
+          console.log('Wallet disconnected');
+          connectedAddress = null;
+          setStatus('Noch nicht verbunden.');
+          setAddr('—');
+          setNet('—');
+          setBal('—');
+          
+          document.getElementById('btn-disconnect')?.setAttribute('disabled', 'true');
+          document.getElementById('btn-refresh')?.setAttribute('disabled', 'true');
+        }
+      });
+
+      console.log('TonConnect UI initialized');
+    } catch (e) {
+      console.error('TonConnect UI initialization error:', e);
+      setStatus('Fehler beim Laden von TonConnect.');
+    }
+  }
+
   async function connect() {
     try {
-      setStatus('Verbindung wird hergestellt...');
-      
-      // Перевірка наявності TON_CONNECT SDK
-      if (!window.TON_CONNECT || !window.TON_CONNECT.TonConnect) {
-        setStatus('TonConnect SDK wird geladen...');
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        if (!window.TON_CONNECT || !window.TON_CONNECT.TonConnect) {
-          setStatus('Fehler: TonConnect SDK nicht verfügbar.');
+      if (!tonConnectUI) {
+        initTonConnect();
+        if (!tonConnectUI) {
+          alert('TonConnect UI konnte nicht geladen werden. Bitte Seite neu laden.');
           return;
         }
       }
 
-      const TonConnect = window.TON_CONNECT.TonConnect;
-      // Використовуємо наш локальний маніфест
-      connector = new TonConnect({ 
-        manifestUrl: '/tonconnect-manifest.json' 
-      });
-
-      // відкриття модального вибору гаманця
-      const walletsList = await connector.getWallets();
-      if (!walletsList || walletsList.length === 0) {
-        setStatus('Keine Wallets gefunden. Bitte installiere Tonkeeper/Tonhub.');
-        return;
-      }
-
-      await connector.connect({
-        universalLink: walletsList[0].universalLink,
-        bridgeUrl: walletsList[0].bridgeUrl
-      });
-
-      const account = connector.account;
-      connectedAddress = account?.address || null;
-
-      if (connectedAddress) {
-        setStatus('Verbunden.');
-        setAddr(connectedAddress);
-        
-        document.getElementById('btn-disconnect')?.removeAttribute('disabled');
-        document.getElementById('btn-refresh')?.removeAttribute('disabled');
-        
-        // Автоматично завантажити баланс
-        await refreshBalance();
-      } else {
-        setStatus('Verbindung fehlgeschlagen.');
-      }
+      setStatus('Verbindung wird hergestellt...');
+      
+      // Відкрити модальне вікно з QR-кодом
+      await tonConnectUI.openModal();
+      
     } catch (e) {
       console.error('TonConnect error:', e);
       setStatus('Verbindung fehlgeschlagen: ' + e.message);
@@ -82,19 +101,12 @@ window.TonUI = (function () {
 
   async function disconnect() {
     try {
-      if (connector) await connector.disconnect();
+      if (tonConnectUI) {
+        await tonConnectUI.disconnect();
+      }
     } catch (e) { 
       console.warn('Disconnect error:', e); 
     }
-    
-    connectedAddress = null;
-    setStatus('Noch nicht verbunden.');
-    setAddr('—'); 
-    setNet('—'); 
-    setBal('—');
-    
-    document.getElementById('btn-disconnect')?.setAttribute('disabled', 'true');
-    document.getElementById('btn-refresh')?.setAttribute('disabled', 'true');
   }
 
   async function refreshBalance() {
@@ -131,7 +143,7 @@ window.TonUI = (function () {
    * @returns {Promise<boolean>} true якщо відправлено, false якщо скасовано
    */
   async function sendStake(poolAddress, amountTon) {
-    if (!connector || !connectedAddress) {
+    if (!tonConnectUI || !connectedAddress) {
       setStatus('Verbinde zuerst dein Wallet.');
       alert('Bitte verbinde zuerst dein Wallet.');
       return false;
@@ -152,7 +164,7 @@ window.TonUI = (function () {
         amountNano
       });
 
-      await connector.sendTransaction({
+      const transaction = {
         validUntil: Math.floor(Date.now() / 1000) + 300, // 5 хвилин
         messages: [
           {
@@ -161,16 +173,18 @@ window.TonUI = (function () {
             // payload: "" // Якщо конкретний пул вимагає payload, додамо поле у pools.json і тут підставимо
           }
         ]
-      });
+      };
+
+      const result = await tonConnectUI.sendTransaction(transaction);
       
-      console.log('Stake transaction sent successfully');
+      console.log('Stake transaction sent successfully:', result);
       return true;
     } catch (e) {
       // Користувач міг скасувати або сталася помилка
       console.warn('sendStake canceled or failed:', e);
       
       // Перевірка чи це скасування користувачем
-      if (e.message && e.message.includes('reject')) {
+      if (e.message && (e.message.includes('reject') || e.message.includes('cancel'))) {
         console.log('Transaction rejected by user');
         return false;
       }
@@ -181,6 +195,13 @@ window.TonUI = (function () {
   }
 
   function initDashboard() {
+    // Ініціалізувати TonConnect UI при завантаженні сторінки
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initTonConnect);
+    } else {
+      initTonConnect();
+    }
+
     const btnConnect = document.getElementById('btn-connect');
     const btnDisconnect = document.getElementById('btn-disconnect');
     const btnRefresh = document.getElementById('btn-refresh');
