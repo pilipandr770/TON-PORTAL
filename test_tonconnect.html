@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TonConnect UI Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #0088cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #006699;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        #status {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>TonConnect UI Integration Test</h1>
+    
+    <div class="card">
+        <h3>Connection Test</h3>
+        <button id="connect-btn">Connect Wallet</button>
+        <button id="disconnect-btn" disabled>Disconnect</button>
+        <div id="status">Not connected</div>
+        <div id="address" style="margin-top: 10px; font-family: monospace;"></div>
+    </div>
+
+    <!-- TonConnect UI from CDN -->
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    
+    <script>
+        let tonConnectUI = null;
+
+        // Initialize TonConnect UI
+        function init() {
+            console.log('Initializing TonConnect UI...');
+            console.log('TonConnectUI available:', typeof TonConnectUI !== 'undefined');
+            
+            if (typeof TonConnectUI === 'undefined') {
+                document.getElementById('status').textContent = 'Error: TonConnectUI not loaded';
+                document.getElementById('status').style.background = '#ffcccc';
+                return;
+            }
+
+            try {
+                tonConnectUI = new TonConnectUI({
+                    manifestUrl: window.location.origin + '/tonconnect-manifest.json',
+                    buttonRootId: null
+                });
+
+                tonConnectUI.onStatusChange(wallet => {
+                    console.log('Status changed:', wallet);
+                    if (wallet) {
+                        document.getElementById('status').textContent = 'Connected!';
+                        document.getElementById('status').style.background = '#ccffcc';
+                        document.getElementById('address').textContent = 'Address: ' + wallet.account.address;
+                        document.getElementById('disconnect-btn').disabled = false;
+                    } else {
+                        document.getElementById('status').textContent = 'Not connected';
+                        document.getElementById('status').style.background = '#f0f0f0';
+                        document.getElementById('address').textContent = '';
+                        document.getElementById('disconnect-btn').disabled = true;
+                    }
+                });
+
+                console.log('TonConnect UI initialized successfully');
+                document.getElementById('status').textContent = 'Ready to connect';
+            } catch (e) {
+                console.error('Initialization error:', e);
+                document.getElementById('status').textContent = 'Error: ' + e.message;
+                document.getElementById('status').style.background = '#ffcccc';
+            }
+        }
+
+        // Connect button
+        document.getElementById('connect-btn').addEventListener('click', async () => {
+            if (!tonConnectUI) {
+                alert('TonConnect UI not initialized');
+                return;
+            }
+            try {
+                console.log('Opening modal...');
+                await tonConnectUI.openModal();
+            } catch (e) {
+                console.error('Connection error:', e);
+                alert('Connection error: ' + e.message);
+            }
+        });
+
+        // Disconnect button
+        document.getElementById('disconnect-btn').addEventListener('click', async () => {
+            if (!tonConnectUI) return;
+            try {
+                await tonConnectUI.disconnect();
+            } catch (e) {
+                console.error('Disconnect error:', e);
+            }
+        });
+
+        // Initialize on load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
