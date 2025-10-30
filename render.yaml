@@ -13,3 +13,5 @@ services:
         value: "true"
       - key: TONCENTER_API_KEY
         sync: false
+      - key: DATABASE_URL
+        value: "postgresql://ittoken_db_user:Xm98VVSZv7cMJkopkdWRkgvZzC7Aly42@dpg-d0visga4d50c73ekmu4g-a.frankfurt-postgres.render.com/ittoken_db"

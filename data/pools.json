@@ -1,16 +1,18 @@
-[
-  {
-    "name": "Partner Pool A",
-    "address": "EQC_example_pool_A",
-    "url": "https://example-pool-a.ton",
-    "fee": 0.05,
-    "min_stake_ton": 10
-  },
-  {
-    "name": "Partner Pool B",
-    "address": "EQC_example_pool_B",
-    "url": "https://example-pool-b.ton",
-    "fee": 0.03,
-    "min_stake_ton": 5
-  }
-]
+{
+  "items": [
+    {
+      "name": "Ton Whales Pool",
+      "address": "EQDFvnxuyA2ogNPOoEj1lu968U8_eFpz2G9DXBPkPRjEctGF",
+      "url": "https://tonwhales.com/staking",
+      "fee": 0.05,
+      "min_stake_ton": 50
+    },
+    {
+      "name": "LiquidStaking Pool",
+      "address": "EQCkWxfyhAkim3g2DjKQQg8T5P4g-Q1-K_jErGcDJI4H3Ysc",
+      "url": "https://app.liquidstaking.org/",
+      "fee": 0.08,
+      "min_stake_ton": 10
+    }
+  ]
+}

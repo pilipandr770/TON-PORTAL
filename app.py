@@ -12,8 +12,29 @@ from flask_limiter.util import get_remote_address
 from flask_caching import Cache
 from logging.handlers import RotatingFileHandler
 
+# Database
+from database import init_database, migrate_from_json, get_all_pools
+
 app = Flask(__name__)
 app.config.from_object(Settings)
+
+# ---- Database initialization ----
+# Ініціалізувати БД при старті (тільки якщо є DATABASE_URL)
+if os.getenv("DATABASE_URL"):
+    try:
+        init_database()
+        logger = logging.getLogger("ton-staking-portal")
+        logger.info("Database initialized successfully")
+        
+        # Спробувати міграцію з JSON (якщо це перший запуск)
+        try:
+            migrate_from_json()
+        except Exception as e:
+            logger.warning(f"Migration skipped or failed: {e}")
+    except Exception as e:
+        logger = logging.getLogger("ton-staking-portal")
+        logger.error(f"Database initialization failed: {e}")
+        # Продовжити роботу без БД (fallback на JSON)
 
 # ---- Logging (rotating file) ----
 os.makedirs("logs", exist_ok=True)
@@ -157,16 +178,46 @@ def api_balance(address: str):
 @app.route("/api/pools")
 def api_pools():
     """
-    Повертає список доступних TON пулів з data/pools.json
+    Повертає список доступних TON пулів
+    Спочатку пробує PostgreSQL, якщо немає - fallback на JSON
     """
     try:
+        # Спробувати отримати з PostgreSQL
+        if os.getenv("DATABASE_URL"):
+            pools = get_all_pools()
+            # Форматувати для API (видалити id, якщо є)
+            items = []
+            for pool in pools:
+                item = {
+                    "name": pool["name"],
+                    "address": pool["address"],
+                    "url": pool.get("url", ""),
+                    "fee": float(pool["fee"]),
+                    "min_stake_ton": float(pool["min_stake_ton"])
+                }
+                if pool.get("description"):
+                    item["description"] = pool["description"]
+                items.append(item)
+            
+            return jsonify({"items": items})
+        
+        # Fallback: читати з pools.json
         pools_file = os.path.join("data", "pools.json")
         with open(pools_file, "r", encoding="utf-8") as f:
-            items = json.load(f)
-        return jsonify({"items": items})
+            data = json.load(f)
+        
+        # Якщо формат {"items": [...]}
+        if isinstance(data, dict) and "items" in data:
+            return jsonify(data)
+        # Якщо формат [...]
+        elif isinstance(data, list):
+            return jsonify({"items": data})
+        else:
+            return jsonify({"items": []})
+            
     except Exception as e:
-        logger.exception("pools.json error")
-        return jsonify({"error": "pools.json not available", "details": str(e)}), 500
+        logger.exception("Error loading pools")
+        return jsonify({"error": "Pools not available", "details": str(e)}), 500
 
 # ---- OpenAPI docs ----
 @app.route("/docs")
