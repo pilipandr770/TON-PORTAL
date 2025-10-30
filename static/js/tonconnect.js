@@ -78,9 +78,24 @@ window.TonUI = (function () {
   async function connect() {
     try {
       if (!tonConnectUI) {
+        // Спробувати ініціалізувати
         initTonConnect();
-        if (!tonConnectUI) {
-          alert('TonConnect UI konnte nicht geladen werden. Bitte Seite neu laden.');
+        
+        // Якщо не вдалось - можливо CDN ще завантажується
+        if (!tonConnectUI && typeof TonConnectUI === 'undefined') {
+          setStatus('TonConnect wird geladen...');
+          
+          // Зачекати 2 секунди і спробувати знову
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          initTonConnect();
+          
+          if (!tonConnectUI) {
+            alert('TonConnect UI konnte nicht geladen werden.\n\nBitte:\n1. Prüfen Sie Ihre Internetverbindung\n2. Laden Sie die Seite neu (F5)');
+            return;
+          }
+        } else if (!tonConnectUI) {
+          // TonConnectUI є, але не вдалось створити інстанс
+          alert('Fehler beim Initialisieren von TonConnect.\nBitte laden Sie die Seite neu.');
           return;
         }
       }
@@ -91,6 +106,7 @@ window.TonUI = (function () {
     } catch (e) {
       console.error('TonConnect error:', e);
       setStatus('Verbindung fehlgeschlagen: ' + e.message);
+      alert('Verbindungsfehler: ' + e.message);
     }
   }
 

@@ -55,97 +55,106 @@
 </div>
 
 <script>
-  window.addEventListener('DOMContentLoaded', () => {
-    if (window.TonUI) {
-      window.TonUI.initDashboard();
+  function initDashboardUI() {
+    if (!window.TonUI) {
+      // TonUI ще не завантажився, спробуємо пізніше
+      setTimeout(initDashboardUI, 100);
+      return;
+    }
+    
+    window.TonUI.initDashboard();
 
-      // Підвантажуємо список пулів у селект
-      fetch('/api/pools')
-        .then(r => r.json())
-        .then(data => {
-          const sel = document.getElementById('pool-select');
-          if (!data.items) return;
-          
-          data.items.forEach(p => {
-            const opt = document.createElement('option');
-            opt.value = p.address;
-            opt.textContent = `${p.name} (${p.min_stake_ton} TON min, Fee ${(p.fee*100).toFixed(1)}%)`;
-            opt.dataset.url = p.url || '';
-            opt.dataset.min = p.min_stake_ton || 0;
-            sel.appendChild(opt);
-          });
-        })
-        .catch(err => {
-          console.error('Error loading pools:', err);
+    // Підвантажуємо список пулів у селект
+    fetch('/api/pools')
+      .then(r => r.json())
+      .then(data => {
+        const sel = document.getElementById('pool-select');
+        if (!data.items) return;
+        
+        data.items.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.address;
+          opt.textContent = `${p.name} (${p.min_stake_ton} TON min, Fee ${(p.fee*100).toFixed(1)}%)`;
+          opt.dataset.url = p.url || '';
+          opt.dataset.min = p.min_stake_ton || 0;
+          sel.appendChild(opt);
         });
+      })
+      .catch(err => {
+        console.error('Error loading pools:', err);
+      });
 
-      const sel = document.getElementById('pool-select');
-      const amount = document.getElementById('stake-amount');
-      const btnStake = document.getElementById('btn-stake');
-      const meta = document.getElementById('pool-meta');
+    const sel = document.getElementById('pool-select');
+    const amount = document.getElementById('stake-amount');
+    const btnStake = document.getElementById('btn-stake');
+    const meta = document.getElementById('pool-meta');
 
-      function validate() {
-        const addr = sel.value;
-        const val = parseFloat(amount.value || '0');
-        const min = parseFloat(sel.selectedOptions[0]?.dataset?.min || '0');
-        const ok = addr && val > 0 && val >= min;
-        btnStake.disabled = !ok;
-        
-        if (addr) {
-          meta.textContent = `Min Stake: ${min} TON`;
-          meta.className = 'form-hint';
-        } else {
-          meta.textContent = '';
-        }
-        
-        if (addr && val > 0 && val < min) {
-          meta.textContent = `⚠️ Mindestens ${min} TON erforderlich`;
-          meta.className = 'form-hint error';
-        }
+    function validate() {
+      const addr = sel.value;
+      const val = parseFloat(amount.value || '0');
+      const min = parseFloat(sel.selectedOptions[0]?.dataset?.min || '0');
+      const ok = addr && val > 0 && val >= min;
+      btnStake.disabled = !ok;
+      
+      if (addr) {
+        meta.textContent = `Min Stake: ${min} TON`;
+        meta.className = 'form-hint';
+      } else {
+        meta.textContent = '';
       }
+      
+      if (addr && val > 0 && val < min) {
+        meta.textContent = `⚠️ Mindestens ${min} TON erforderlich`;
+        meta.className = 'form-hint error';
+      }
+    }
 
-      sel.addEventListener('change', validate);
-      amount.addEventListener('input', validate);
+    sel.addEventListener('change', validate);
+    amount.addEventListener('input', validate);
 
-      btnStake.addEventListener('click', async () => {
-        const poolAddr = sel.value;
-        const valTon = parseFloat(amount.value || '0');
-        const result = document.getElementById('stake-result');
-        result.textContent = '⏳ Sende Transaktion...';
-        result.className = 'stake-result';
-        
-        try {
-          const ok = await window.TonUI.sendStake(poolAddr, valTon);
-          if (ok) {
-            const user = document.getElementById('addr').textContent;
-            const viewer = `https://tonviewer.com/${encodeURIComponent(user)}?section=transactions`;
-            result.innerHTML = `✅ Transaktion gesendet! <a href="${viewer}" target="_blank" rel="noopener">Verlauf ansehen →</a>`;
-            result.className = 'stake-result success';
-            
-            // Скинути форму
-            amount.value = '';
-            validate();
-            
-            // Оновити баланс через 3 секунди
-            setTimeout(() => {
-              const btnRefresh = document.getElementById('btn-refresh');
-              if (btnRefresh && !btnRefresh.disabled) {
-                btnRefresh.click();
-              }
-            }, 3000);
-          } else {
-            result.textContent = '❌ Transaktion abgebrochen oder fehlgeschlagen.';
-            result.className = 'stake-result error';
-          }
-        } catch (e) {
-          console.error(e);
-          result.textContent = '❌ Fehler beim Senden: ' + e.message;
+    btnStake.addEventListener('click', async () => {
+      const poolAddr = sel.value;
+      const valTon = parseFloat(amount.value || '0');
+      const result = document.getElementById('stake-result');
+      result.textContent = '⏳ Sende Transaktion...';
+      result.className = 'stake-result';
+      
+      try {
+        const ok = await window.TonUI.sendStake(poolAddr, valTon);
+        if (ok) {
+          const user = document.getElementById('addr').textContent;
+          const viewer = `https://tonviewer.com/${encodeURIComponent(user)}?section=transactions`;
+          result.innerHTML = `✅ Transaktion gesendet! <a href="${viewer}" target="_blank" rel="noopener">Verlauf ansehen →</a>`;
+          result.className = 'stake-result success';
+          
+          // Скинути форму
+          amount.value = '';
+          validate();
+          
+          // Оновити баланс через 3 секунди
+          setTimeout(() => {
+            const btnRefresh = document.getElementById('btn-refresh');
+            if (btnRefresh && !btnRefresh.disabled) {
+              btnRefresh.click();
+            }
+          }, 3000);
+        } else {
+          result.textContent = '❌ Transaktion abgebrochen oder fehlgeschlagen.';
           result.className = 'stake-result error';
         }
-      });
-    } else {
-      console.error('TonUI module not loaded');
-    }
-  });
+      } catch (e) {
+        console.error(e);
+        result.textContent = '❌ Fehler beim Senden: ' + e.message;
+        result.className = 'stake-result error';
+      }
+    });
+  }
+  
+  // Запустити ініціалізацію після завантаження DOM
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDashboardUI);
+  } else {
+    initDashboardUI();
+  }
 </script>
 {% endblock %}

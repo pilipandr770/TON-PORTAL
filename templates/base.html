@@ -38,8 +38,8 @@
 </footer>
 
 <!-- TonConnect UI (CDN) - для QR-кодів і модального вікна -->
-<script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-<script src="{{ url_for('static', filename='js/tonconnect.js') }}"></script>
+<script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js" crossorigin="anonymous" onerror="this.onerror=null; this.src='https://cdn.jsdelivr.net/npm/@tonconnect/ui@latest/dist/tonconnect-ui.min.js';"></script>
+<script src="{{ url_for('static', filename='js/tonconnect.js') }}" defer></script>
 
 <!-- Cookie consent (простий локальний банер без трекерів) -->
 <script src="{{ url_for('static', filename='js/cookie-consent.js') }}"></script>
