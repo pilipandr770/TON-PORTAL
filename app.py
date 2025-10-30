@@ -18,24 +18,6 @@ from database import init_database, migrate_from_json, get_all_pools
 app = Flask(__name__)
 app.config.from_object(Settings)
 
-# ---- Database initialization ----
-# Ініціалізувати БД при старті (тільки якщо є DATABASE_URL)
-if os.getenv("DATABASE_URL"):
-    try:
-        init_database()
-        logger = logging.getLogger("ton-staking-portal")
-        logger.info("Database initialized successfully")
-        
-        # Спробувати міграцію з JSON (якщо це перший запуск)
-        try:
-            migrate_from_json()
-        except Exception as e:
-            logger.warning(f"Migration skipped or failed: {e}")
-    except Exception as e:
-        logger = logging.getLogger("ton-staking-portal")
-        logger.error(f"Database initialization failed: {e}")
-        # Продовжити роботу без БД (fallback на JSON)
-
 # ---- Logging (rotating file) ----
 os.makedirs("logs", exist_ok=True)
 file_handler = RotatingFileHandler("logs/app.log", maxBytes=2_000_000, backupCount=5)
@@ -48,6 +30,28 @@ app.logger.addHandler(file_handler)
 
 # базове логування (консоль)
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("ton-staking-portal")
+
+# ---- Database initialization ----
+# Ініціалізувати БД при старті (тільки якщо є DATABASE_URL)
+if os.getenv("DATABASE_URL"):
+    try:
+        logger.info("Initializing database...")
+        init_database()
+        logger.info("Database initialized successfully")
+        
+        # Спробувати міграцію з JSON (якщо це перший запуск)
+        try:
+            migrate_from_json()
+            logger.info("Data migration from JSON completed")
+        except Exception as e:
+            logger.warning(f"Migration skipped or failed: {e}")
+    except Exception as e:
+        logger.error(f"Database initialization failed: {e}")
+        logger.info("Will use JSON fallback for pools data")
+        # Продовжити роботу без БД (fallback на JSON)
+else:
+    logger.info("No DATABASE_URL found, using JSON file for pools")
 logger = logging.getLogger("ton-staking-portal")
 
 # ---- Rate Limiter ----
@@ -119,7 +123,36 @@ def disclaimer():
 # ---- Health & Version ----
 @app.route("/healthz")
 def healthz():
-    return jsonify({"status": "ok"})
+    health = {
+        "status": "ok",
+        "database": "not_configured",
+        "pools_file": "not_found"
+    }
+    
+    # Check database connection
+    if os.getenv("DATABASE_URL"):
+        try:
+            pools = get_all_pools()
+            health["database"] = f"connected ({len(pools)} pools)"
+        except Exception as e:
+            health["database"] = f"error: {str(e)[:100]}"
+    
+    # Check pools.json file
+    pools_path = os.path.join(app.root_path, "data", "pools.json")
+    if os.path.exists(pools_path):
+        try:
+            with open(pools_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if isinstance(data, dict) and "items" in data:
+                health["pools_file"] = f"ok ({len(data['items'])} pools)"
+            elif isinstance(data, list):
+                health["pools_file"] = f"ok ({len(data)} pools)"
+            else:
+                health["pools_file"] = "invalid_format"
+        except Exception as e:
+            health["pools_file"] = f"error: {str(e)[:100]}"
+    
+    return jsonify(health)
 
 @app.route("/version")
 def version():
