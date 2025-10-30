@@ -1,0 +1,16 @@
+[
+  {
+    "name": "Partner Pool A",
+    "address": "EQC_example_pool_A",
+    "url": "https://example-pool-a.ton",
+    "fee": 0.05,
+    "min_stake_ton": 10
+  },
+  {
+    "name": "Partner Pool B",
+    "address": "EQC_example_pool_B",
+    "url": "https://example-pool-b.ton",
+    "fee": 0.03,
+    "min_stake_ton": 5
+  }
+]

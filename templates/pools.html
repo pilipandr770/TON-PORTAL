@@ -1,0 +1,38 @@
+<!-- file: templates/pools.html -->
+{% extends "base.html" %}
+{% block content %}
+<h1>TON Pools</h1>
+<p>Dies ist ein kuratierter Katalog von Pools. Delegationen werden ausschließlich im eigenen Wallet signiert.</p>
+
+<div id="pools-container">
+  <p>Laden...</p>
+</div>
+
+<script>
+  async function loadPools() {
+    const el = document.getElementById('pools-container');
+    el.innerHTML = '<p>Laden...</p>';
+    try {
+      const res = await fetch('/api/pools');
+      const data = await res.json();
+      if (data.items && Array.isArray(data.items)) {
+        el.innerHTML = data.items.map(p => `
+          <div class="card" style="margin:12px 0;">
+            <h3>${p.name}</h3>
+            <p><strong>Adresse:</strong> <code>${p.address}</code></p>
+            <p><strong>Fee:</strong> ${(p.fee * 100).toFixed(1)} %</p>
+            <p><strong>Min Stake:</strong> ${p.min_stake_ton} TON</p>
+            <p><a href="${p.url}" target="_blank" rel="noopener">Pool-Website</a></p>
+          </div>
+        `).join('');
+      } else {
+        el.innerHTML = '<p>Keine Daten.</p>';
+      }
+    } catch (e) {
+      console.error(e);
+      el.innerHTML = '<p>Fehler beim Laden der Pool-Daten.</p>';
+    }
+  }
+  window.addEventListener('DOMContentLoaded', loadPools);
+</script>
+{% endblock %}

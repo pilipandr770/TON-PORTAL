@@ -1,0 +1,10 @@
+<!-- file: templates/404.html -->
+{% extends "base.html" %}
+{% block content %}
+<div style="text-align: center; padding: 60px 20px;">
+  <h1 style="font-size: 4rem; margin: 0;">404</h1>
+  <h2>Seite nicht gefunden</h2>
+  <p>Die angeforderte Seite existiert nicht.</p>
+  <a href="{{ url_for('index') }}" class="btn">Zur Startseite</a>
+</div>
+{% endblock %}

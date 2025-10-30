@@ -1,0 +1,10 @@
+<!-- file: templates/500.html -->
+{% extends "base.html" %}
+{% block content %}
+<div style="text-align: center; padding: 60px 20px;">
+  <h1 style="font-size: 4rem; margin: 0;">500</h1>
+  <h2>Interner Serverfehler</h2>
+  <p>Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.</p>
+  <a href="{{ url_for('index') }}" class="btn">Zur Startseite</a>
+</div>
+{% endblock %}

@@ -42,10 +42,10 @@ window.TonUI = (function () {
       }
 
       const TonConnect = window.TON_CONNECT.TonConnect;
+      // Використовуємо наш локальний маніфест
       connector = new TonConnect({ 
-        manifestUrl: 'https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json' 
+        manifestUrl: '/tonconnect-manifest.json' 
       });
-      // ↑ Маніфест демо. Для продакшна створи свій файл manifest.json на своєму домені.
 
       // відкриття модального вибору гаманця
       const walletsList = await connector.getWallets();
