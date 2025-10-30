@@ -184,37 +184,53 @@ def api_pools():
     try:
         # Спробувати отримати з PostgreSQL
         if os.getenv("DATABASE_URL"):
-            pools = get_all_pools()
-            # Форматувати для API (видалити id, якщо є)
-            items = []
-            for pool in pools:
-                item = {
-                    "name": pool["name"],
-                    "address": pool["address"],
-                    "url": pool.get("url", ""),
-                    "fee": float(pool["fee"]),
-                    "min_stake_ton": float(pool["min_stake_ton"])
-                }
-                if pool.get("description"):
-                    item["description"] = pool["description"]
-                items.append(item)
-            
-            return jsonify({"items": items})
+            try:
+                pools = get_all_pools()
+                # Форматувати для API (видалити id, якщо є)
+                items = []
+                for pool in pools:
+                    item = {
+                        "name": pool["name"],
+                        "address": pool["address"],
+                        "url": pool.get("url", ""),
+                        "fee": float(pool["fee"]),
+                        "min_stake_ton": float(pool["min_stake_ton"])
+                    }
+                    if pool.get("description"):
+                        item["description"] = pool["description"]
+                    items.append(item)
+                
+                logger.info(f"Loaded {len(items)} pools from PostgreSQL")
+                return jsonify({"items": items})
+            except Exception as db_error:
+                logger.warning(f"PostgreSQL error, falling back to JSON: {db_error}")
         
-        # Fallback: читати з pools.json
-        pools_file = os.path.join("data", "pools.json")
-        with open(pools_file, "r", encoding="utf-8") as f:
+        # Fallback: читати з pools.json (використовуємо app.root_path для коректного шляху)
+        pools_path = os.path.join(app.root_path, "data", "pools.json")
+        
+        if not os.path.exists(pools_path):
+            logger.error(f"pools.json not found at {pools_path}")
+            return jsonify({"error": "pools.json not found", "path": pools_path}), 500
+        
+        logger.info(f"Reading pools from {pools_path}")
+        with open(pools_path, "r", encoding="utf-8") as f:
             data = json.load(f)
         
         # Якщо формат {"items": [...]}
         if isinstance(data, dict) and "items" in data:
+            logger.info(f"Loaded {len(data['items'])} pools from JSON (dict format)")
             return jsonify(data)
         # Якщо формат [...]
         elif isinstance(data, list):
+            logger.info(f"Loaded {len(data)} pools from JSON (list format)")
             return jsonify({"items": data})
         else:
-            return jsonify({"items": []})
+            logger.error(f"Invalid pools.json format: {type(data)}")
+            return jsonify({"error": "Invalid pools.json format", "type": str(type(data))}), 500
             
+    except json.JSONDecodeError as e:
+        logger.exception(f"pools.json JSON decode error at line {e.lineno}, col {e.colno}")
+        return jsonify({"error": "pools.json invalid JSON", "details": str(e)}), 500
     except Exception as e:
         logger.exception("Error loading pools")
         return jsonify({"error": "Pools not available", "details": str(e)}), 500
