@@ -1,8 +1,313 @@
 <!-- file: templates/disclaimer.html -->
 {% extends "base.html" %}
 {% block content %}
-<h1>Disclaimer</h1>
-<p>Keine Anlageberatung. Kryptowährungen sind volatil. 
-Die Nutzung der Plattform erfolgt auf eigenes Risiko. 
-Wir stellen ausschließlich Software-Funktionen bereit.</p>
+<div class="legal-page">
+  <h1>⚠️ Haftungsausschluss (Disclaimer)</h1>
+  
+  <div class="card" style="background: #2a1a1a; border: 2px solid #f90; margin-bottom: 24px;">
+    <h2 style="color: #f90; margin-top: 0;">Wichtige Warnung</h2>
+    <p style="font-size: 1.1em; line-height: 1.8;">
+      <strong>Das TON Staking Portal stellt KEINE Finanzberatung, Anlageberatung oder Investmentempfehlung dar!</strong> 
+      Alle Informationen dienen ausschließlich Informationszwecken. Die Nutzung erfolgt auf eigenes Risiko und eigene Verantwortung.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>1. Keine Finanzberatung</h2>
+    <p>
+      Wir sind KEIN:
+    </p>
+    <ul>
+      <li>Finanzberater oder Anlageberater</li>
+      <li>Broker oder Vermögensverwalter</li>
+      <li>Bank oder Finanzinstitut</li>
+      <li>Lizenzierter Dienstleister nach dem Wertpapierhandelsgesetz (WpHG)</li>
+    </ul>
+    <p>
+      Alle Informationen auf dieser Website sind <strong>allgemeiner Natur</strong> und berücksichtigen NICHT:
+    </p>
+    <ul>
+      <li>Ihre persönliche finanzielle Situation</li>
+      <li>Ihre Anlageziele</li>
+      <li>Ihre Risikobereitschaft</li>
+      <li>Ihre Kenntnisse über Kryptowährungen</li>
+    </ul>
+    <p style="margin-top: 16px; font-weight: bold; color: #ffd700;">
+      🛡️ Empfehlung: Konsultieren Sie einen lizenzierten Finanzberater, bevor Sie Investitionsentscheidungen treffen!
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>2. Risiken von Kryptowährungen und Staking</h2>
+    
+    <h3>Allgemeine Risiken:</h3>
+    <ul>
+      <li><strong>Totalverlustrisiko:</strong> Kryptowährungen können ihren gesamten Wert verlieren</li>
+      <li><strong>Extreme Volatilität:</strong> Kursschwankungen von 50%+ pro Tag sind möglich</li>
+      <li><strong>Keine Einlagensicherung:</strong> Im Gegensatz zu Bankeinlagen gibt es keinen Schutz</li>
+      <li><strong>Regulatorische Risiken:</strong> Gesetze können sich ändern und Staking verbieten</li>
+      <li><strong>Technische Risiken:</strong> Bugs, Hacks, Netzwerkausfälle</li>
+    </ul>
+    
+    <h3>Spezifische Staking-Risiken:</h3>
+    <ul>
+      <li><strong>Smart Contract Risiko:</strong> Fehler im Code können zu Verlusten führen</li>
+      <li><strong>Slashing:</strong> Validatoren können bei Fehlverhalten bestraft werden</li>
+      <li><strong>Liquiditätsrisiko:</strong> Coins sind während des Stakings gesperrt (Unbonding Period)</li>
+      <li><strong>Validator-Ausfall:</strong> Pool-Betreiber können insolvent werden oder verschwinden</li>
+      <li><strong>Impermanent Loss (bei LST):</strong> LST-Tokens können vom Wert abweichen</li>
+    </ul>
+    
+    <p style="margin-top: 16px; padding: 16px; background: #3a1a1a; border-left: 4px solid #f90; border-radius: 8px;">
+      ⚠️ <strong>Keine Gewinngarantie:</strong> Angegebene APY-Werte sind Schätzungen und können 
+      sich jederzeit ändern oder auf null fallen. Staking-Rewards können Kursverluste NICHT kompensieren!
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>3. Non-Custodial Service</h2>
+    <p>
+      Das TON Staking Portal ist ein <strong>Non-Custodial Service</strong>:
+    </p>
+    <ul>
+      <li>Wir verwahren KEINE Kryptowährungen für Sie</li>
+      <li>Wir haben KEINEN Zugriff auf Ihre Private Keys oder Wallets</li>
+      <li>Wir können KEINE Transaktionen in Ihrem Namen durchführen</li>
+      <li>Wir können KEINE verlorenen Keys wiederherstellen</li>
+      <li>Wir können KEINE Transaktionen rückgängig machen</li>
+    </ul>
+    <p style="margin-top: 16px;">
+      <strong>Sie sind allein verantwortlich für:</strong>
+    </p>
+    <ul>
+      <li>Die Sicherheit Ihrer Wallet und Private Keys</li>
+      <li>Die Überprüfung aller Transaktionsdetails</li>
+      <li>Backup Ihrer Seed-Phrase</li>
+      <li>Schutz vor Phishing und Social Engineering</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>4. Keine Garantien</h2>
+    <p>
+      Wir geben KEINE Garantie für:
+    </p>
+    <ul>
+      <li>Die Verfügbarkeit der Website (24/7 Uptime)</li>
+      <li>Die Korrektheit der angezeigten Daten</li>
+      <li>Die Sicherheit von Staking-Pools</li>
+      <li>Die Zuverlässigkeit von Validatoren</li>
+      <li>Die Höhe der Staking-Rewards</li>
+      <li>Die Rückerstattung von Verlusten</li>
+      <li>Den Erhalt gestakter Coins</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>5. Pool-Empfehlungen</h2>
+    <p>
+      Unsere Pool-Empfehlungen basieren auf öffentlich verfügbaren Informationen und eigener Recherche. 
+      Eine Empfehlung bedeutet <strong>NICHT</strong>:
+    </p>
+    <ul>
+      <li>Dass der Pool 100% sicher ist</li>
+      <li>Dass Sie Gewinne erzielen werden</li>
+      <li>Dass wir für Verluste haften</li>
+      <li>Dass wir eine finanzielle Beziehung zum Pool haben (wir erhalten KEINE Provisionen)</li>
+    </ul>
+    <p style="margin-top: 16px; font-weight: bold; color: #ffd700;">
+      🔍 <strong>DYOR (Do Your Own Research):</strong> Recherchieren Sie selbst, lesen Sie Audits, 
+      prüfen Sie die Blockchain-Historie, bevor Sie Coins staken!
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>6. Steuerliche Aspekte</h2>
+    <p>
+      Staking-Rewards können in Deutschland steuerpflichtig sein. Wir bieten <strong>KEINE Steuerberatung</strong>. 
+      Sie sind selbst verantwortlich für:
+    </p>
+    <ul>
+      <li>Die Dokumentation aller Transaktionen</li>
+      <li>Die korrekte Versteuerung von Staking-Rewards</li>
+      <li>Die Einhaltung lokaler Steuergesetze</li>
+    </ul>
+    <p style="margin-top: 16px;">
+      <strong>Empfehlung:</strong> Konsultieren Sie einen Steuerberater mit Krypto-Erfahrung!
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>7. Externe Links und Dienste</h2>
+    <p>
+      Diese Website enthält Links zu externen Websites (Staking-Pools, Wallets, Blockexplorer). 
+      Wir haben <strong>keinen Einfluss</strong> auf diese externen Inhalte und können nicht für 
+      deren Richtigkeit oder Sicherheit garantieren.
+    </p>
+    <p>
+      Wir verwenden externe Dienste:
+    </p>
+    <ul>
+      <li>TonConnect UI (unpkg.com CDN)</li>
+      <li>TON Bridge Server (für Wallet-Verbindung)</li>
+      <li>TON Blockchain Explorer (tonscan.org)</li>
+    </ul>
+    <p>
+      Die Nutzung dieser Dienste unterliegt deren eigenen Nutzungsbedingungen und Datenschutzrichtlinien.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>8. Haftungsbeschränkung</h2>
+    <p>
+      Das TON Staking Portal und der Betreiber haften <strong>NICHT</strong> für:
+    </p>
+    <ul>
+      <li>Verluste durch Staking (Kursverluste, Slashing, Hacks)</li>
+      <li>Fehler oder Ausfälle von Staking-Pools oder Validatoren</li>
+      <li>Verlust von Private Keys oder Wallet-Zugängen</li>
+      <li>Phishing-Angriffe oder Social Engineering</li>
+      <li>Fehlerhafte oder verspätete Transaktionen</li>
+      <li>Netzwerküberlastung der TON-Blockchain</li>
+      <li>Bugs in Smart Contracts (unseren oder von Drittanbietern)</li>
+      <li>Änderungen in Gesetzen oder Regulierungen</li>
+      <li>Datenverluste oder Nichtverfügbarkeit der Website</li>
+      <li>Indirekte Schäden, entgangene Gewinne, Folgeschäden</li>
+    </ul>
+    <p style="margin-top: 16px; padding: 16px; background: #1a1a1a; border-left: 4px solid #36d7b7;">
+      <strong>Ausnahme:</strong> Die Haftung für Vorsatz und grobe Fahrlässigkeit sowie für Schäden 
+      aus der Verletzung des Lebens, des Körpers oder der Gesundheit bleibt unberührt (gesetzliche Mindesthaftung).
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>9. "As-Is" Bereitstellung</h2>
+    <p>
+      Die Website und alle Dienste werden <strong>"AS-IS"</strong> (wie gesehen) bereitgestellt, ohne 
+      Garantien jeglicher Art, weder ausdrücklich noch stillschweigend. Wir übernehmen keine Gewähr für:
+    </p>
+    <ul>
+      <li>Fehlerfreien Betrieb</li>
+      <li>Aktualität der Daten</li>
+      <li>Vollständigkeit der Informationen</li>
+      <li>Kompatibilität mit allen Wallets</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>10. Beta-Software</h2>
+    <p>
+      Das TON Staking Portal befindet sich in aktiver Entwicklung. Es können Bugs, Fehler oder 
+      unerwartetes Verhalten auftreten. Nutzen Sie die Website mit Vorsicht und nur mit Beträgen, 
+      deren Verlust Sie sich leisten können.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>11. Änderungen</h2>
+    <p>
+      Wir behalten uns das Recht vor, diesen Disclaimer jederzeit zu ändern. Änderungen werden auf 
+      dieser Seite veröffentlicht. Die fortgesetzte Nutzung nach Änderungen gilt als Zustimmung zum 
+      geänderten Disclaimer.
+    </p>
+  </div>
+
+  <div class="card" style="background: #1a2a3a; border: 2px solid #36d7b7;">
+    <h2 style="color: #36d7b7; margin-top: 0;">✅ Zusammenfassung für Nutzer</h2>
+    <p style="font-size: 1.05em; line-height: 1.8;">
+      <strong>Bitte verstehen Sie:</strong>
+    </p>
+    <ol style="line-height: 2; font-size: 1.05em;">
+      <li>Kryptowährungen sind <strong>hochspekulativ</strong> und können ihren gesamten Wert verlieren</li>
+      <li>Staking birgt <strong>zusätzliche Risiken</strong> (Slashing, Smart Contracts, Liquidität)</li>
+      <li>Wir sind <strong>kein Finanzberater</strong> und geben keine Anlageempfehlungen</li>
+      <li>Wir verwahren <strong>keine Gelder</strong> und haben keinen Zugriff auf Ihre Keys</li>
+      <li>Sie sind <strong>selbst verantwortlich</strong> für alle Entscheidungen und Sicherheit</li>
+      <li>Wir haften <strong>nicht für Verluste</strong> durch Staking oder Marktbewegungen</li>
+      <li><strong>DYOR</strong> – Recherchieren Sie selbst, bevor Sie investieren!</li>
+      <li>Investieren Sie <strong>nur</strong>, was Sie sich leisten können zu verlieren!</li>
+    </ol>
+    <p style="margin-top: 24px; text-align: center;">
+      <a class="btn btn-primary" href="{{ url_for('index') }}" style="font-size: 1.1em;">Ich habe verstanden → Zur Startseite</a>
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>Kontakt</h2>
+    <p>
+      Bei Fragen zu diesem Disclaimer kontaktieren Sie uns bitte:
+    </p>
+    <p>
+      <strong>Andrii Pylypchuk</strong><br>
+      E-Mail: <a href="mailto:andrii.it.info@gmail.com">andrii.it.info@gmail.com</a><br>
+      Weitere Kontaktdaten: <a href="{{ url_for('impressum') }}">Impressum</a>
+    </p>
+  </div>
+
+  <div class="card">
+    <p style="margin-top: 24px; color: #888; font-size: 0.9em;">
+      <strong>Stand dieses Disclaimers:</strong> 31. Oktober 2025
+    </p>
+  </div>
+</div>
+
+<style>
+.legal-page {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.legal-page h1 {
+  color: #f90;
+  margin-bottom: 32px;
+  font-size: 2.5em;
+  text-align: center;
+}
+
+.legal-page h2 {
+  color: #36d7b7;
+  font-size: 1.3em;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.legal-page h3 {
+  color: #fff;
+  font-size: 1.1em;
+  margin-top: 24px;
+  margin-bottom: 12px;
+}
+
+.legal-page .card {
+  margin-bottom: 24px;
+}
+
+.legal-page p {
+  line-height: 1.8;
+  margin: 12px 0;
+}
+
+.legal-page ul, .legal-page ol {
+  line-height: 1.8;
+  margin: 12px 0;
+  padding-left: 24px;
+}
+
+.legal-page li {
+  margin: 8px 0;
+}
+
+.legal-page a {
+  color: #36d7b7;
+  text-decoration: none;
+}
+
+.legal-page a:hover {
+  text-decoration: underline;
+}
+
+.legal-page strong {
+  color: #ffd700;
+}
+</style>
 {% endblock %}
