@@ -151,16 +151,6 @@ def recommended_pool():
     """Детальна інформація про рекомендований пул"""
     return render_template("recommended-pool.html", title="Рекомендований пул")
 
-@app.route("/healthz")
-def healthz():
-    """Health check endpoint for Render.com and monitoring"""
-    return jsonify({
-        "status": "ok",
-        "timestamp": int(time.time()),
-        "version": os.getenv("GIT_SHA", "dev"),
-        "service": "ton-staking-portal"
-    }), 200
-
 @app.route("/impressum")
 def impressum():
     """Impressum (Pflichtangaben nach TMG)"""
