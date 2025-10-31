@@ -2,63 +2,55 @@
 // Ініціалізація офіційного TonConnect UI (кнопка + модал з QR та списком гаманців)
 
 (function () {
-  console.log('[TonConnect] Initializing TonConnect UI...');
-  
-  // Перевірка завантаження UI
-  if (!window.TON_CONNECT_UI) {
-    alert("TonConnect UI не завантажився. Натисніть F5.\n(перевір CDN / CSP)");
-    return;
-  }
-
-  // Швидка перевірка маніфесту: origin повинен збігатися з location.origin
-  fetch('/tonconnect-manifest.json')
-    .then(r => r.json())
-    .then(man => {
-      try {
-        const u = new URL(man.url);
-        if (u.origin !== window.location.origin) {
-          console.warn('[TonConnect] Manifest URL origin mismatch:', u.origin, 'vs', window.location.origin);
-          alert("Увага: у tonconnect-manifest.json інший домен у полі 'url'. Виправте на ваш Render-домен.");
-        } else {
-          console.log('[TonConnect] ✅ Manifest origin matches:', u.origin);
-        }
-      } catch(e) { 
-        console.error('[TonConnect] Error parsing manifest URL:', e);
-      }
-    })
-    .catch(err => {
-      console.error('[TonConnect] Failed to fetch manifest:', err);
-    });
+  console.log('[TonConnect] Starting initialization...');
   
   // Функція ініціалізації з повторними спробами
   function initTonConnectUI(attempt = 0) {
-    const maxAttempts = 10;
+    const maxAttempts = 20; // Збільшено для повільних з'єднань
+    
+    // Перевірка завантаження UI бібліотеки
+    const TonConnectUIClass = window.TON_CONNECT_UI?.TonConnectUI || window.TonConnectUI;
+    
+    if (!TonConnectUIClass) {
+      if (attempt < maxAttempts) {
+        console.log('[TonConnect] Waiting for library... (', attempt + 1, '/', maxAttempts, ')');
+        setTimeout(() => initTonConnectUI(attempt + 1), 300);
+        return;
+      } else {
+        console.error('[TonConnect] ❌ Library not loaded after', maxAttempts, 'attempts');
+        // Показати кнопку перезавантаження замість alert
+        showReloadButton();
+        return;
+      }
+    }
 
     // Перевірка наявності елемента для кнопки
     const buttonContainer = document.getElementById('tonconnect-ui-button');
     if (!buttonContainer) {
-      console.warn('[TonConnect] Button container #tonconnect-ui-button not found yet, waiting...');
       if (attempt < maxAttempts) {
-        setTimeout(() => initTonConnectUI(attempt + 1), 200);
+        console.log('[TonConnect] Waiting for button container... (', attempt + 1, '/', maxAttempts, ')');
+        setTimeout(() => initTonConnectUI(attempt + 1), 300);
         return;
       } else {
-        console.error('[TonConnect] Button container not found after', maxAttempts, 'attempts');
+        console.error('[TonConnect] ❌ Button container not found');
         return;
       }
     }
 
     try {
-      console.log('[TonConnect] Creating TonConnect UI instance...');
+      console.log('[TonConnect] ✅ Library found! Creating instance...');
       
       // Ініціалізація UI
-      const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+      const tonConnectUI = new TonConnectUIClass({
         manifestUrl: '/tonconnect-manifest.json',
         buttonRootId: 'tonconnect-ui-button'
       });
 
-      console.log('[TonConnect] ✅ TonConnect UI instance created');
-      console.log('[TonConnect] Current state - Connected:', tonConnectUI.connected);
-      console.log('[TonConnect] Current wallet:', tonConnectUI.wallet);
+      console.log('[TonConnect] ✅ Instance created successfully!');
+      console.log('[TonConnect] Connected:', tonConnectUI.connected);
+      
+      // Показати кнопку якщо вона прихована
+      buttonContainer.style.display = 'block';
 
     // Базова діагностика в консоль
     tonConnectUI.onStatusChange(async (walletInfo) => {
@@ -154,22 +146,35 @@
 
       // Експорт для відправки транзакцій
       window.__tonConnectUI__ = tonConnectUI;
-      console.log('[TonConnect] ✅ Initialization complete');
+      console.log('[TonConnect] ✅ Ready!');
       
     } catch (error) {
-      console.error('[TonConnect] ❌ Failed to initialize:', error);
-      alert('Fehler beim Initialisieren von TonConnect UI:\n' + error.message);
+      console.error('[TonConnect] ❌ Error:', error);
+      showReloadButton();
     }
   }
   
-  // Запустити ініціалізацію після завантаження DOM
+  // Показати кнопку перезавантаження замість alert
+  function showReloadButton() {
+    const container = document.getElementById('tonconnect-ui-button');
+    if (container) {
+      container.innerHTML = `
+        <div style="text-align: center; padding: 20px; background: #ff4444; color: white; border-radius: 8px;">
+          <p style="margin-bottom: 10px;">❌ TonConnect UI nicht geladen</p>
+          <button onclick="location.reload()" 
+                  style="background: white; color: #ff4444; border: none; padding: 10px 20px; 
+                         border-radius: 6px; cursor: pointer; font-weight: bold;">
+            🔄 Seite neu laden
+          </button>
+        </div>
+      `;
+    }
+  }
+  
+  // Запустити ініціалізацію
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      console.log('DOM loaded, initializing TonConnect UI...');
-      initTonConnectUI();
-    });
+    document.addEventListener('DOMContentLoaded', () => initTonConnectUI());
   } else {
-    console.log('DOM already loaded, initializing TonConnect UI...');
     initTonConnectUI();
   }
 })();
