@@ -247,7 +247,7 @@ def test_simple():
     return html
 
 @app.route("/pools")
-def pools_page():
+def pools():
     return render_template("pools.html", title="TON Pools")
 
 @app.route("/disclaimer")
