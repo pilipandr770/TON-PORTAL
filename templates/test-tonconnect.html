@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TonConnect Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #0f1520;
+            color: white;
+        }
+        .card {
+            background: #1a2332;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .log {
+            background: #000;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .log div {
+            margin: 5px 0;
+            padding: 3px 0;
+            border-bottom: 1px solid #333;
+        }
+        .success { color: #0f0; }
+        .error { color: #f00; }
+        .info { color: #0af; }
+        .warning { color: #fa0; }
+    </style>
+</head>
+<body>
+    <h1>🔍 TonConnect Диагностика</h1>
+    
+    <div class="card">
+        <h3>1. Проверка библиотеки</h3>
+        <p id="lib-check">⏳ Проверка...</p>
+    </div>
+    
+    <div class="card">
+        <h3>2. Проверка Manifest</h3>
+        <p id="manifest-check">⏳ Проверка...</p>
+    </div>
+    
+    <div class="card">
+        <h3>3. Кнопка подключения</h3>
+        <div id="tonconnect-ui-button"></div>
+    </div>
+    
+    <div class="card">
+        <h3>4. Статус подключения</h3>
+        <p><strong>Статус:</strong> <span id="wallet-status">Не подключен</span></p>
+        <p><strong>Адрес:</strong> <span id="addr">—</span></p>
+        <p><strong>Баланс:</strong> <span id="bal">—</span> TON</p>
+    </div>
+    
+    <div class="log" id="log"></div>
+
+    <!-- TonConnect UI -->
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js" crossorigin="anonymous"></script>
+    
+    <script>
+        const log = document.getElementById('log');
+        
+        function addLog(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            log.appendChild(div);
+            log.scrollTop = log.scrollHeight;
+            console.log(message);
+        }
+        
+        addLog('Страница загружена', 'info');
+        
+        // Проверка 1: Библиотека
+        setTimeout(() => {
+            const libCheck = document.getElementById('lib-check');
+            if (window.TON_CONNECT_UI) {
+                libCheck.innerHTML = '✅ window.TON_CONNECT_UI найдена';
+                libCheck.style.color = '#0f0';
+                addLog('✅ TonConnect UI библиотека загружена', 'success');
+            } else if (window.TonConnectUI) {
+                libCheck.innerHTML = '✅ window.TonConnectUI найдена';
+                libCheck.style.color = '#0f0';
+                addLog('✅ TonConnect UI (старая версия) загружена', 'success');
+            } else {
+                libCheck.innerHTML = '❌ Библиотека НЕ загружена';
+                libCheck.style.color = '#f00';
+                addLog('❌ TonConnect UI НЕ загружена!', 'error');
+                return;
+            }
+            
+            // Проверка 2: Manifest
+            const manifestUrl = window.location.origin + '/tonconnect-manifest.json';
+            addLog('Проверка manifest: ' + manifestUrl, 'info');
+            
+            fetch(manifestUrl)
+                .then(r => {
+                    const manifestCheck = document.getElementById('manifest-check');
+                    if (r.ok) {
+                        manifestCheck.innerHTML = '✅ Manifest доступен (HTTP ' + r.status + ')';
+                        manifestCheck.style.color = '#0f0';
+                        addLog('✅ Manifest доступен: ' + r.status, 'success');
+                        return r.json();
+                    } else {
+                        throw new Error('HTTP ' + r.status);
+                    }
+                })
+                .then(manifest => {
+                    addLog('✅ Manifest загружен: ' + manifest.name, 'success');
+                    addLog('   URL: ' + manifest.url, 'info');
+                    
+                    // Проверка 3: Инициализация TonConnect
+                    initTonConnect();
+                })
+                .catch(err => {
+                    const manifestCheck = document.getElementById('manifest-check');
+                    manifestCheck.innerHTML = '❌ Ошибка: ' + err.message;
+                    manifestCheck.style.color = '#f00';
+                    addLog('❌ Ошибка загрузки manifest: ' + err.message, 'error');
+                });
+        }, 1000);
+        
+        function initTonConnect() {
+            addLog('Инициализация TonConnect UI...', 'info');
+            
+            const TonConnectUIClass = window.TON_CONNECT_UI?.TonConnectUI || window.TonConnectUI;
+            
+            try {
+                const tonConnectUI = new TonConnectUIClass({
+                    manifestUrl: window.location.origin + '/tonconnect-manifest.json',
+                    buttonRootId: 'tonconnect-ui-button'
+                });
+                
+                addLog('✅ TonConnect UI создан успешно!', 'success');
+                addLog('   Connected: ' + tonConnectUI.connected, 'info');
+                
+                // Обработчик изменения статуса
+                tonConnectUI.onStatusChange(async (walletInfo) => {
+                    addLog('🔔 onStatusChange вызван!', 'warning');
+                    addLog('   walletInfo: ' + JSON.stringify(walletInfo), 'info');
+                    
+                    if (walletInfo && walletInfo.account) {
+                        const address = walletInfo.account.address;
+                        addLog('✅ КОШЕЛЕК ПОДКЛЮЧЕН!', 'success');
+                        addLog('   Адрес: ' + address, 'success');
+                        
+                        document.getElementById('wallet-status').textContent = 'Подключен';
+                        document.getElementById('addr').textContent = address;
+                        
+                        // Загрузка баланса
+                        addLog('Загрузка баланса...', 'info');
+                        try {
+                            const res = await fetch(`/api/balance/${address}`);
+                            const data = await res.json();
+                            
+                            if (data && !data.error) {
+                                document.getElementById('bal').textContent = data.balance_ton.toFixed(4);
+                                addLog('✅ Баланс: ' + data.balance_ton + ' TON', 'success');
+                            } else {
+                                addLog('❌ Ошибка API баланса: ' + data.error, 'error');
+                            }
+                        } catch (e) {
+                            addLog('❌ Ошибка загрузки баланса: ' + e.message, 'error');
+                        }
+                    } else {
+                        addLog('❌ Кошелек отключен', 'warning');
+                        document.getElementById('wallet-status').textContent = 'Не подключен';
+                        document.getElementById('addr').textContent = '—';
+                        document.getElementById('bal').textContent = '—';
+                    }
+                });
+                
+                addLog('✅ onStatusChange зарегистрирован', 'success');
+                
+                // Проверка восстановления соединения
+                tonConnectUI.connectionRestored.then(restored => {
+                    addLog('connectionRestored: ' + restored, 'info');
+                });
+                
+            } catch (error) {
+                addLog('❌ ОШИБКА инициализации: ' + error.message, 'error');
+                addLog('   Stack: ' + error.stack, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

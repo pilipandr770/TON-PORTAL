@@ -107,6 +107,10 @@ def faq():
 def dashboard():
     return render_template("dashboard.html", title="Dashboard")
 
+@app.route("/test-tonconnect")
+def test_tonconnect():
+    return render_template("test-tonconnect.html", title="TonConnect Test")
+
 @app.route("/pools")
 def pools_page():
     return render_template("pools.html", title="TON Pools")
