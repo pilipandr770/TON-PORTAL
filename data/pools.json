@@ -1,18 +1,44 @@
 {
   "items": [
     {
-      "name": "Ton Whales Pool",
-      "address": "EQDFvnxuyA2ogNPOoEj1lu968U8_eFpz2G9DXBPkPRjEctGF",
-      "url": "https://tonwhales.com/staking",
+      "name": "Tonkeeper Pool",
+      "address": "EQCkWxfyhAkim3g2DjKQQg8T5P4g-Q1-K_jErGcDJI4H3Ysc",
+      "url": "https://tonkeeper.com/",
       "fee": 0.05,
-      "min_stake_ton": 50
+      "min_stake_ton": 10,
+      "description": "Official Tonkeeper liquid staking with instant withdrawals"
     },
     {
-      "name": "LiquidStaking Pool",
-      "address": "EQCkWxfyhAkim3g2DjKQQg8T5P4g-Q1-K_jErGcDJI4H3Ysc",
-      "url": "https://app.liquidstaking.org/",
-      "fee": 0.08,
-      "min_stake_ton": 10
+      "name": "Bemo Finance",
+      "address": "EQC8rUZqR_pWV1BylWUlPNBzyiTYVoBEmQkMIQDZXICfnuRr",
+      "url": "https://app.bemo.finance/",
+      "fee": 0.04,
+      "min_stake_ton": 1,
+      "description": "Bemo liquid staking - stake any amount, get stTON tokens"
+    },
+    {
+      "name": "TON Whales",
+      "address": "EQDFvnxuyA2ogNPOoEj1lu968U8_eFpz2G9DXBPkPRjEctGF",
+      "url": "https://tonwhales.com/",
+      "fee": 0.05,
+      "min_stake_ton": 50,
+      "description": "TON Whales nominator pool - one of the first staking services"
+    },
+    {
+      "name": "Tonstakers",
+      "address": "EQAhE3sLxHZpsyZ_OVoXoOjuBnBKL3vOk1_3TvYvYnqfqx-v",
+      "url": "https://tonstakers.com/",
+      "fee": 0.05,
+      "min_stake_ton": 100,
+      "description": "Community-run nominator pool with competitive fees"
+    },
+    {
+      "name": "Hipo Finance",
+      "address": "EQCLyZHP4Xe8fpchQz76O-_RmUhaVc_9BAoGyJrwJrcbz2eZ",
+      "url": "https://app.hipo.finance/",
+      "fee": 0.03,
+      "min_stake_ton": 1,
+      "description": "Hipo liquid staking - low fees, get hTON tokens"
     }
   ]
 }
