@@ -63,14 +63,40 @@
           return `
             <div class="card" style="${cardStyle}">
               ${p.recommended ? '<div style="background: #ffd700; color: #000; padding: 8px 12px; margin: -12px -12px 12px -12px; font-weight: bold; border-radius: 8px 8px 0 0;">⭐ VON TON PORTAL EMPFOHLEN</div>' : ''}
-              <div style="display: flex; justify-content: space-between; align-items: start;">
+              <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
                 <div>
                   <h3>${p.name} ${typeBadge}${recommendedBadge}</h3>
                   ${p.description ? `<p style="color: #a0a0a0; font-size: 0.9em; margin: 4px 0;">${p.description}</p>` : ''}
                 </div>
-                <button class="btn btn-secondary" onclick="PoolSec.open('${p.address}')" style="flex-shrink: 0;">
-                  🔐 Sicherheitsprüfung
-                </button>
+                <div style="display: flex; gap: 8px; flex-shrink: 0; flex-wrap: wrap;">
+                  <button class="btn btn-secondary" onclick="PoolSec.open('${p.address}')">
+                    🔐 Sicherheit
+                  </button>
+                  <button class="btn btn-primary" onclick="
+                    (async () => {
+                      const ui = window.__tonConnectUI__;
+                      if (!ui || !ui.account) {
+                        alert('⚠️ Bitte Wallet zuerst verbinden (Dashboard-Seite)');
+                        window.location.href = '/dashboard';
+                        return;
+                      }
+                      const minStake = ${p.min_stake_ton || 1};
+                      const v = prompt('Betrag in TON für Delegation (min. ' + minStake + ' TON):', minStake);
+                      if (!v) return;
+                      const amount = Number(v.replace(',', '.'));
+                      if (!amount || amount <= 0) { alert('❌ Ungültiger Betrag'); return; }
+                      if (amount < minStake) { alert('⚠️ Minimum: ' + minStake + ' TON'); return; }
+                      try {
+                        const ok = await TonDelegate.send('${p.address}', amount, ${p.payload ? `'${p.payload}'` : 'null'});
+                        if (ok) alert('✅ Transaktion gesendet! Bitte in Ihrer Wallet bestätigen.');
+                      } catch (e) {
+                        alert('❌ Fehler: ' + e.message);
+                      }
+                    })();
+                  " style="background: linear-gradient(135deg, #36d7b7 0%, #2aa88a 100%); font-weight: bold;">
+                    🚀 Delegieren
+                  </button>
+                </div>
               </div>
               
               <div style="margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">

@@ -1,0 +1,108 @@
+{
+  "pool_name": "PORTAL Official Pool",
+  "pool_type": "native",
+  "version": "1.0.0",
+  "network": "testnet",
+  "status": "testing",
+  
+  "contract": {
+    "owner_address": "0:0000000000000000000000000000000000000000000000000000000000000000",
+    "validator_address": "EQC________________________________________",
+    "code_hash": "",
+    "deployed_at": null,
+    "upgradeable": false,
+    "immutable": true
+  },
+  
+  "parameters": {
+    "fee_percent": 2.0,
+    "min_stake_ton": 10,
+    "max_stake_ton": null,
+    "withdraw_lock_enabled": true,
+    "unbonding_period_days": "2-4"
+  },
+  
+  "validator": {
+    "operator": "Andrii Pylypchuk",
+    "contact": "andrii.it.info@gmail.com",
+    "website": "https://ton-portal.onrender.com",
+    "target_uptime": 0.99,
+    "monitoring": {
+      "enabled": true,
+      "tools": ["Grafana", "Prometheus"],
+      "alerts": ["Telegram", "Email"]
+    }
+  },
+  
+  "security": {
+    "audits": [
+      {
+        "auditor": "TBD",
+        "date": null,
+        "report_url": "./audit/report.pdf",
+        "status": "pending"
+      }
+    ],
+    "code_verification": {
+      "source_code_url": "https://github.com/ton-blockchain/nominator-pool",
+      "verified_on_explorer": false,
+      "explorer_url": null
+    },
+    "key_management": {
+      "type": "HSM",
+      "provider": "TBD",
+      "backup": "Multi-signature cold storage"
+    }
+  },
+  
+  "economics": {
+    "fee_distribution": {
+      "operator_fee": 2.0,
+      "protocol_fee": 0.0,
+      "user_share": 98.0
+    },
+    "estimated_apy": {
+      "min": 3.0,
+      "max": 5.0,
+      "note": "Depends on network conditions and validator performance"
+    }
+  },
+  
+  "technical": {
+    "get_methods": [
+      "get_pool_data",
+      "get_stake_amount",
+      "get_validator_address",
+      "get_owner",
+      "get_fee"
+    ],
+    "supported_operations": [
+      "deposit",
+      "withdraw",
+      "query_balance",
+      "query_pending_rewards"
+    ]
+  },
+  
+  "deployment": {
+    "testnet": {
+      "planned_date": "2025-11-15",
+      "testing_duration_days": 30,
+      "min_test_amount_ton": 100
+    },
+    "mainnet": {
+      "planned_date": "2025-12-15",
+      "conditions": [
+        "Successful testnet operation (30+ days)",
+        "Security audit completion",
+        "Community testing and feedback"
+      ]
+    }
+  },
+  
+  "metadata": {
+    "created": "2025-10-31",
+    "last_updated": "2025-10-31",
+    "schema_version": "1.0"
+  }
+}

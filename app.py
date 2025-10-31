@@ -5,6 +5,7 @@ import requests
 import logging
 import os
 import json
+import time
 
 # Rate limiting & caching
 from flask_limiter import Limiter
@@ -74,16 +75,42 @@ def set_security_headers(resp):
     resp.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
     resp.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
 
-    # КРИТИЧНО: дозволяємо TonConnect bridge для отримання відповіді від гаманця
-    # CSP з підтримкою всіх WebSocket для TonConnect (без wildcard - не всі браузери підтримують)
+    # CSP Configuration (currently using CDN for TonConnect)
+    # TODO: After vendorizing TonConnect libs (static/js/vendor/), switch to stricter CSP:
+    #   - Remove 'unsafe-inline' from script-src
+    #   - Remove https://unpkg.com https://cdn.jsdelivr.net from script-src
+    #   - Specify exact domains in connect-src instead of https: wss:
+    #
+    # Stricter CSP example (for post-vendorization):
+    # csp_policy = (
+    #     "default-src 'self'; "
+    #     "img-src 'self' data: blob: https:; "
+    #     "style-src 'self' 'unsafe-inline'; "  # Can remove 'unsafe-inline' if inline styles extracted
+    #     "script-src 'self'; "  # Only local scripts
+    #     "connect-src 'self' "
+    #         "https://toncenter.com https://testnet.toncenter.com "
+    #         "https://ton-connect.github.io "
+    #         "https://bridge.tonapi.io wss://bridge.tonapi.io "
+    #         "https://connect.tonhubapi.com wss://connect.tonhubapi.com "
+    #         "https://api.llama.fi "
+    #         "https://*.tonkeeper.com https://*.tonhub.com "
+    #         "https://wallet.tg https://walletbot.me; "
+    #     "frame-ancestors 'none'; "
+    #     "base-uri 'self'; "
+    #     "object-src 'none'; "
+    #     "media-src 'self' data: blob:;"
+    # )
+    
+    # Current CSP (permissive for CDN usage)
     csp_policy = (
         "default-src 'self'; "
         "img-src 'self' data: https: blob:; "
         "style-src 'self' 'unsafe-inline'; "
         "script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net; "
-        "connect-src 'self' https: wss: data: blob:; "
+        "connect-src 'self' https: wss: data: blob:; "  # Allows all HTTPS/WSS for TonConnect bridges
         "frame-ancestors 'none'; "
-        "base-uri 'self';"
+        "base-uri 'self'; "
+        "object-src 'none';"
     )
     resp.headers["Content-Security-Policy"] = csp_policy
     return resp
@@ -123,6 +150,16 @@ def dashboard_direct():
 def recommended_pool():
     """Детальна інформація про рекомендований пул"""
     return render_template("recommended-pool.html", title="Рекомендований пул")
+
+@app.route("/healthz")
+def healthz():
+    """Health check endpoint for Render.com and monitoring"""
+    return jsonify({
+        "status": "ok",
+        "timestamp": int(time.time()),
+        "version": os.getenv("GIT_SHA", "dev"),
+        "service": "ton-staking-portal"
+    }), 200
 
 @app.route("/impressum")
 def impressum():
