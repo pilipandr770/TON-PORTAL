@@ -50,29 +50,54 @@
       const script = document.createElement('script');
       script.src = url;
       script.crossOrigin = 'anonymous';
-      script.onload = () => callback(null);
-      script.onerror = () => callback(new Error('Failed to load ' + url));
+      script.onload = () => {
+        console.log('✅ TonConnect UI loaded from:', url);
+        callback(null);
+      };
+      script.onerror = () => {
+        console.warn('❌ Failed to load from:', url);
+        callback(new Error('Failed to load ' + url));
+      };
       document.head.appendChild(script);
     }
     
     function tryLoadCdn(index) {
       if (index >= cdnUrls.length) {
-        console.error('All CDN sources failed to load TonConnect UI');
+        console.error('❌ All CDN sources failed to load TonConnect UI');
+        alert('TonConnect UI konnte nicht geladen werden.\nBitte laden Sie die Seite neu (F5).');
         return;
       }
       
       loadScript(cdnUrls[index], (error) => {
         if (error) {
-          console.warn('Failed to load from ' + cdnUrls[index] + ', trying next...');
+          console.warn('Trying next CDN...');
           tryLoadCdn(index + 1);
+        } else {
+          // Успішно завантажено, тепер завантажуємо наші скрипти
+          loadOurScripts();
         }
       });
+    }
+    
+    function loadOurScripts() {
+      // Завантажити tonconnect.js
+      const script1 = document.createElement('script');
+      script1.src = "{{ url_for('static', filename='js/tonconnect.js') }}";
+      script1.defer = true;
+      document.body.appendChild(script1);
+      
+      // Завантажити tonconnect-ui-init.js після tonconnect.js
+      script1.onload = () => {
+        const script2 = document.createElement('script');
+        script2.src = "{{ url_for('static', filename='js/tonconnect-ui-init.js') }}";
+        script2.defer = true;
+        document.body.appendChild(script2);
+      };
     }
     
     tryLoadCdn(0);
   })();
 </script>
-<script src="{{ url_for('static', filename='js/tonconnect.js') }}" defer></script>
 
 <!-- Cookie consent (простий локальний банер без трекерів) -->
 <script src="{{ url_for('static', filename='js/cookie-consent.js') }}"></script>

@@ -74,13 +74,13 @@ def set_security_headers(resp):
     resp.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
     # HSTS (увімкни на проді з HTTPS)
     resp.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
-    # CSP: дозволяємо локальні скрипти + unpkg + inline scripts для dashboard
+    # CSP: дозволяємо локальні скрипти + unpkg + ton-connect registry для іконок гаманців
     resp.headers["Content-Security-Policy"] = (
         "default-src 'self'; "
-        "img-src 'self' data:; "
+        "img-src 'self' data: https://ton-connect.github.io https://*.tonkeeper.com https://*.tonhub.com; "
         "style-src 'self' 'unsafe-inline'; "
-        "script-src 'self' 'unsafe-inline' https://unpkg.com; "
-        "connect-src 'self' https://toncenter.com https://testnet.toncenter.com;"
+        "script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net; "
+        "connect-src 'self' https://ton-connect.github.io https://toncenter.com https://testnet.toncenter.com;"
     )
     return resp
 
