@@ -6,6 +6,16 @@
 <div class="card">
   <h3>Wallet-Verbindung</h3>
   
+  <!-- Попередження про проблеми з bridge -->
+  <div id="bridge-warning" style="display:none; background:#3a1a1a; border:2px solid #f90; padding:12px; margin:10px 0; border-radius:8px;">
+    <p style="margin:0; color:#f90;">
+      ⚠️ <strong>WebSocket Bridge недоступний</strong><br>
+      <span style="font-size:0.9em; color:#ccc;">
+        Якщо підключення не працює, спробуйте <a href="/dashboard-direct" style="color:#0af;">альтернативний режим</a> або використовуйте VPN.
+      </span>
+    </p>
+  </div>
+  
   <!-- Тут TonConnect UI намалює кнопку (з іконкою) та відкриє модал із QR -->
   <div id="tonconnect-ui-button"></div>
   
@@ -156,5 +166,29 @@
   } else {
     initDashboardUI();
   }
+  
+  // Автоматична перевірка доступності WebSocket bridge
+  setTimeout(() => {
+    try {
+      const testWs = new WebSocket('wss://bridge.tonapi.io/bridge');
+      const timeout = setTimeout(() => {
+        document.getElementById('bridge-warning').style.display = 'block';
+        testWs.close();
+      }, 3000);
+      
+      testWs.onopen = () => {
+        clearTimeout(timeout);
+        testWs.close();
+        console.log('✅ Bridge доступний');
+      };
+      
+      testWs.onerror = () => {
+        clearTimeout(timeout);
+        document.getElementById('bridge-warning').style.display = 'block';
+      };
+    } catch (e) {
+      document.getElementById('bridge-warning').style.display = 'block';
+    }
+  }, 2000);
 </script>
 {% endblock %}

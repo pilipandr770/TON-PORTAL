@@ -17,6 +17,10 @@ body {
   background: var(--bg);
   color: var(--text);
   line-height: 1.6;
+  /* Sticky footer - футер завжди внизу */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 a {
@@ -26,6 +30,11 @@ a {
 
 a:hover {
   text-decoration: underline;
+}
+
+main {
+  /* Займає весь доступний простір, штовхаючи footer вниз */
+  flex: 1;
 }
 
 .container {
