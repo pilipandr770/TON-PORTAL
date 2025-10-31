@@ -77,12 +77,14 @@ def set_security_headers(resp):
     resp.headers["Cross-Origin-Opener-Policy"] = "same-origin"
     resp.headers["Cross-Origin-Resource-Policy"] = "same-origin"
 
-    # Strict CSP after vendorization (local TonConnect libs only)
+    # CSP after vendorization (local TonConnect libs, inline handlers allowed for now)
+    # NOTE: 'unsafe-inline' needed for onclick handlers in pools.html
+    # TODO: Refactor to event listeners for stricter CSP
     csp_policy = (
         "default-src 'self'; "
         "img-src 'self' data: blob: https:; "
         "style-src 'self' 'unsafe-inline'; "
-        "script-src 'self'; "  # Only local scripts, no CDN
+        "script-src 'self' 'unsafe-inline'; "  # Local scripts + inline handlers
         "connect-src 'self' "
             "https://toncenter.com https://testnet.toncenter.com "
             "https://ton-connect.github.io "
