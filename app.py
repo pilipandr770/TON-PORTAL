@@ -260,18 +260,6 @@ def test_simple():
 def pools_page():
     return render_template("pools.html", title="TON Pools")
 
-@app.route("/impressum")
-def impressum():
-    return render_template("impressum_de.html", title="Impressum")
-
-@app.route("/datenschutz")
-def datenschutz():
-    return render_template("privacy_de.html", title="Datenschutzerklärung")
-
-@app.route("/agb")
-def agb():
-    return render_template("agb_de.html", title="AGB")
-
 @app.route("/disclaimer")
 def disclaimer():
     return render_template("disclaimer.html", title="Disclaimer")
