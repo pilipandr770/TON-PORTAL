@@ -15,7 +15,7 @@
       "faq_url": "https://tonkeeper.com/",
       "tos_url": "https://tonkeeper.com/terms",
       "lst_token": "tsTON",
-      "lst_risk_note": "LST додає ризик ліквідності та смарт-контрактів. Миттєвий вихід через DEX за ринковою ціною."
+      "lst_risk_note": "LST fügt Liquiditäts- und Smart-Contract-Risiken hinzu. Sofortiger Ausstieg über DEX zum Marktpreis."
     },
     {
       "name": "Bemo Finance",
@@ -33,7 +33,7 @@
       "tos_url": "https://bemo.finance/terms",
       "defillama_slug": "bemo",
       "lst_token": "stTON",
-      "lst_risk_note": "LST: за необхідності миттєвого виходу можлива просадка ціни на DEX. Ризик смарт-контрактів."
+      "lst_risk_note": "LST: Bei sofortigem Ausstieg möglicher Preisrückgang auf DEX. Smart-Contract-Risiko."
     },
     {
       "name": "TON Whales",
@@ -42,9 +42,9 @@
       "url": "https://tonwhales.com/",
       "fee": 0.05,
       "min_stake_ton": 50,
-      "description": "⭐ Рекомендовано TON Portal: Офіційний номінатор пул від TON Foundation. Найбільший та найбезпечніший.",
+      "description": "⭐ Empfohlen von TON Portal: Offizieller Nominator-Pool von TON Foundation. Der größte und sicherste.",
       "recommended": true,
-      "recommended_badge": "⭐ Наш вибір",
+      "recommended_badge": "⭐ Empfohlen",
       "audits": [
         "https://tonwhales.com/security",
         "https://github.com/ton-blockchain/nominator-pool"
@@ -85,7 +85,7 @@
       "tos_url": "https://hipo.finance/terms",
       "defillama_slug": "hipo-finance",
       "lst_token": "hTON",
-      "lst_risk_note": "LST: ризик смарт-контрактів та ліквідності DEX при швидкому виході. Можлива просадка ціни."
+      "lst_risk_note": "LST: Smart-Contract- und DEX-Liquiditätsrisiko bei schnellem Ausstieg. Möglicher Preisrückgang."
     }
   ]
 }

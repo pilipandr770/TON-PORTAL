@@ -2,11 +2,11 @@
 {% extends "base.html" %}
 {% block content %}
 <h1>TON Pools</h1>
-<p>Оберіть пул для стейкінгу. Натисніть <strong>"Перевірка безпеки"</strong> для автоматичного аудиту (метадані + ончейн-дані).</p>
-<p>Усі делегації підписуються виключно у вашому власному гаманці. Ми не зберігаємо ваші кошти.</p>
+<p>Wähle einen Pool zum Staking. Klicke auf <strong>"Sicherheitsprüfung"</strong> für ein automatisches Audit (Metadaten + On-Chain-Daten).</p>
+<p>Alle Delegationen werden ausschließlich in deiner eigenen Wallet signiert. Wir verwahren keine Gelder.</p>
 
 <div id="pools-container">
-  <p>⏳ Завантаження пулів...</p>
+  <p>⏳ Pools werden geladen...</p>
 </div>
 
 {% include "partials/pool_security_modal.html" %}
@@ -14,7 +14,7 @@
 <script>
   async function loadPools() {
     const el = document.getElementById('pools-container');
-    el.innerHTML = '<p>⏳ Завантаження пулів...</p>';
+    el.innerHTML = '<p>⏳ Pools werden geladen...</p>';
     try {
       const res = await fetch('/api/pools');
       const data = await res.json();
@@ -25,48 +25,48 @@
             ? '<span class="badge" style="background: #2a1f3a; color: #d084ff;">LST</span>' 
             : '<span class="badge" style="background: #1f3a2a; color: #84ffd0;">Native</span>';
           
-          // Стиль для рекомендованого пулу
+          // Style für empfohlenen Pool
           const cardStyle = p.recommended 
             ? 'margin:12px 0; border: 3px solid #ffd700; background: linear-gradient(135deg, #1a1a1a 0%, #2a1a1a 100%); box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);'
             : 'margin:12px 0;';
           
           const recommendedBadge = p.recommended 
-            ? '<span class="badge" style="background: #ffd700; color: #000; font-weight: bold; margin-left: 8px;">⭐ НАШ ВИБІР</span>'
+            ? '<span class="badge" style="background: #ffd700; color: #000; font-weight: bold; margin-left: 8px;">⭐ EMPFOHLEN</span>'
             : '';
           
           return `
             <div class="card" style="${cardStyle}">
-              ${p.recommended ? '<div style="background: #ffd700; color: #000; padding: 8px 12px; margin: -12px -12px 12px -12px; font-weight: bold; border-radius: 8px 8px 0 0;">⭐ РЕКОМЕНДОВАНО TON PORTAL</div>' : ''}
+              ${p.recommended ? '<div style="background: #ffd700; color: #000; padding: 8px 12px; margin: -12px -12px 12px -12px; font-weight: bold; border-radius: 8px 8px 0 0;">⭐ VON TON PORTAL EMPFOHLEN</div>' : ''}
               <div style="display: flex; justify-content: space-between; align-items: start;">
                 <div>
                   <h3>${p.name} ${typeBadge}${recommendedBadge}</h3>
                   ${p.description ? `<p style="color: #a0a0a0; font-size: 0.9em; margin: 4px 0;">${p.description}</p>` : ''}
                 </div>
                 <button class="btn btn-secondary" onclick="PoolSec.open('${p.address}')" style="flex-shrink: 0;">
-                  🔐 Перевірка безпеки
+                  🔐 Sicherheitsprüfung
                 </button>
               </div>
               
               <div style="margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                 <div>
-                  <p><strong>Адреса:</strong><br/><code style="font-size: 0.85em; word-break: break-all;">${p.address}</code></p>
-                  <p><strong>Fee:</strong> ${(p.fee * 100).toFixed(1)} %</p>
-                  <p><strong>Min Stake:</strong> ${p.min_stake_ton} TON</p>
+                  <p><strong>Adresse:</strong><br/><code style="font-size: 0.85em; word-break: break-all;">${p.address}</code></p>
+                  <p><strong>Gebühr:</strong> ${(p.fee * 100).toFixed(1)} %</p>
+                  <p><strong>Min. Stake:</strong> ${p.min_stake_ton} TON</p>
                 </div>
                 <div>
                   ${p.lst_token ? `<p><strong>LST Token:</strong> ${p.lst_token}</p>` : ''}
-                  <p><a href="${p.url}" target="_blank" rel="noopener" class="btn btn-secondary" style="display: inline-block; margin-top: 8px;">🌐 Сайт пулу →</a></p>
+                  <p><a href="${p.url}" target="_blank" rel="noopener" class="btn btn-secondary" style="display: inline-block; margin-top: 8px;">🌐 Pool-Website →</a></p>
                 </div>
               </div>
             </div>
           `;
         }).join('');
       } else {
-        el.innerHTML = '<p>❌ Немає даних про пули.</p>';
+        el.innerHTML = '<p>❌ Keine Daten über Pools verfügbar.</p>';
       }
     } catch (e) {
       console.error('Error loading pools:', e);
-      el.innerHTML = '<p>❌ Помилка при завантаженні пулів.</p>';
+      el.innerHTML = '<p>❌ Fehler beim Laden der Pools.</p>';
     }
   }
   

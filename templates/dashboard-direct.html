@@ -4,14 +4,14 @@
 <h1>Dashboard (Direct Connection Mode)</h1>
 
 <div class="card" style="background: #2a1a1a; border: 2px solid #f90;">
-  <h3>⚠️ WebSocket Bridge Недоступний</h3>
-  <p>TON Bridge сервери недоступні з вашої мережі. Використовуйте <strong>прямі посилання</strong> для підключення гаманця:</p>
+  <h3>⚠️ WebSocket Bridge nicht verfügbar</h3>
+  <p>TON Bridge Server sind von Ihrem Netzwerk nicht erreichbar. Verwenden Sie <strong>direkte Links</strong> für die Wallet-Verbindung:</p>
 </div>
 
 <div class="card">
-  <h3>Підключення гаманця (Direct Links)</h3>
+  <h3>Wallet-Verbindung (Direct Links)</h3>
   
-  <p>Виберіть ваш гаманець для підключення:</p>
+  <p>Wähle deine Wallet für die Verbindung:</p>
   
   <div style="display: grid; gap: 12px; margin-top: 20px;">
     <a href="https://app.tonkeeper.com/ton-connect?v=2&id={{ app_id }}&r={{ return_url }}" 
@@ -34,38 +34,38 @@
   </div>
   
   <p style="margin-top: 20px; color: #888; font-size: 0.9em;">
-    💡 Після натискання відкриється додаток гаманця. Підтвердіть підключення там.
+    💡 Nach dem Klicken öffnet sich die Wallet-App. Bestätige die Verbindung dort.
   </p>
   
   <div id="tonconnect-ui-button" style="margin-top: 20px;"></div>
   
-  <p id="wallet-status" style="margin-top:10px">Ще не підключено.</p>
+  <p id="wallet-status" style="margin-top:10px">Noch nicht verbunden.</p>
 </div>
 
 <div class="card">
   <h3>Balance</h3>
-  <p><strong>Адреса:</strong> <span id="addr">—</span></p>
-  <p><strong>Мережа:</strong> <span id="net">—</span></p>
-  <p><strong>Баланс:</strong> <span id="bal">—</span> TON</p>
-  <button id="btn-refresh" class="btn btn-secondary" disabled>Оновити</button>
+  <p><strong>Adresse:</strong> <span id="addr">—</span></p>
+  <p><strong>Netzwerk:</strong> <span id="net">—</span></p>
+  <p><strong>Balance:</strong> <span id="bal">—</span> TON</p>
+  <button id="btn-refresh" class="btn btn-secondary" disabled>Aktualisieren</button>
 </div>
 
 <div class="card">
   <h3>Stake in Pool</h3>
-  <p>Оберіть пул з каталогу і введіть суму в TON. 
-     Делегація підписується виключно у вашому гаманці (ми не зберігаємо кошти).</p>
+  <p>Wähle einen Pool aus dem Katalog und gib den Betrag in TON ein. 
+     Die Delegation wird ausschließlich in deiner Wallet signiert (wir speichern keine Gelder).</p>
 
   <div class="stake-form">
     <div class="form-group">
       <label for="pool-select"><strong>Pool</strong></label>
       <select id="pool-select" name="pool">
-        <!-- Завантажується динамічно -->
+        <!-- Wird dynamisch geladen -->
       </select>
     </div>
 
     <div class="form-group">
-      <label for="amount"><strong>Сума (TON)</strong></label>
-      <input type="number" id="amount" name="amount" min="1" step="0.01" placeholder="наприклад: 100">
+      <label for="amount"><strong>Betrag (TON)</strong></label>
+      <input type="number" id="amount" name="amount" min="1" step="0.01" placeholder="z.B.: 100">
     </div>
 
     <button id="btn-stake" class="btn btn-primary" disabled>Stake TON</button>
@@ -73,7 +73,7 @@
 </div>
 
 <script>
-// Завантаження пулів для селекту
+// Pools für Select laden
 fetch('/api/pools')
   .then(r => r.json())
   .then(data => {
