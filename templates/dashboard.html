@@ -3,8 +3,13 @@
 {% block content %}
 <h1>Dashboard</h1>
 
-<div class="card">
-  <h3>Wallet-Verbindung</h3>
+<div class="card" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border: 2px solid #36d7b7;">
+  <h3 style="color: #36d7b7;">🔗 Schritt 1: Wallet verbinden</h3>
+  <p style="margin-bottom: 16px; line-height: 1.8;">
+    Verbinde deine TON-Wallet über das sichere <strong>TonConnect-Protokoll</strong>. 
+    Wir verwahren <strong>keine Gelder</strong> und haben <strong>keinen Zugriff</strong> auf deine Private Keys. 
+    Alle Transaktionen werden nur in deiner eigenen Wallet signiert.
+  </p>
   
   <!-- Warnung über Bridge-Probleme -->
   <div id="bridge-warning" style="display:none; background:#3a1a1a; border:2px solid #f90; padding:12px; margin:10px 0; border-radius:8px;">
@@ -20,20 +25,33 @@
   <div id="tonconnect-ui-button"></div>
   
   <p id="wallet-status" style="margin-top:10px">Noch nicht verbunden.</p>
+  
+  <div style="margin-top: 16px; padding: 12px; background: #0d1117; border-radius: 8px; font-size: 0.9em; color: #888;">
+    💡 <strong>Unterstützte Wallets:</strong> Tonkeeper, Tonhub, MyTonWallet, OpenMask und alle TonConnect-kompatiblen Wallets.
+  </div>
 </div>
 
 <div class="card">
-  <h3>Balance</h3>
+  <h3 style="color: #36d7b7;">💰 Schritt 2: Balance prüfen</h3>
   <p><strong>Adresse:</strong> <span id="addr">—</span></p>
   <p><strong>Netzwerk:</strong> <span id="net">—</span></p>
   <p><strong>Balance:</strong> <span id="bal">—</span> TON</p>
   <button id="btn-refresh" class="btn btn-secondary" disabled>Aktualisieren</button>
+  
+  <div style="margin-top: 16px; padding: 12px; background: #1a1a1a; border-left: 4px solid #ffd700; border-radius: 4px; font-size: 0.9em;">
+    ⚠️ <strong>Mindestbetrag beachten:</strong> Verschiedene Pools haben unterschiedliche Minimum-Stakes 
+    (z.B. 1 TON für Bemo, 50 TON für TON Whales). Prüfe die Pool-Details auf der 
+    <a href="{{ url_for('pools') }}" style="color: #36d7b7;">Pools-Seite</a>.
+  </div>
 </div>
 
-<div class="card">
-  <h3>Stake in Pool</h3>
-  <p>Wähle einen Pool aus dem Katalog und gib die Menge in TON ein. 
-     Die Delegation wird ausschließlich in deinem Wallet signiert (wir verwahren nichts).</p>
+<div class="card" style="border: 2px solid #ffd700;">
+  <h3 style="color: #ffd700;">🚀 Schritt 3: Pool wählen & Staking starten</h3>
+  <p style="line-height: 1.8; margin-bottom: 16px;">
+    Wähle einen Pool aus unserem kuratierten Katalog und gib den gewünschten Betrag ein. 
+    Die Delegation wird <strong>nur in deiner Wallet</strong> signiert – wir haben keinen Zugriff auf deine Coins. 
+    Nach der Bestätigung beginnt das Staking automatisch.
+  </p>
 
   <div class="stake-form">
     <div class="form-group">

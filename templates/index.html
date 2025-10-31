@@ -3,22 +3,165 @@
 {% block content %}
 <section class="hero">
   <h1>Staking in TON – einfach, sicher, transparent.</h1>
-  <p>Verbinde deinen Wallet, wähle einen Pool und unterstütze das TON-Netzwerk. 
-     Du behältst jederzeit die volle Kontrolle – wir bieten nur die Software-Schnittstelle.</p>
-  <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-top: 24px;">
+  <p style="font-size: 1.15em; max-width: 800px; margin: 16px auto; line-height: 1.8;">
+    Verdiene passives Einkommen mit TON Staking! Verbinde deine Wallet, wähle einen vertrauenswürdigen 
+    Pool und unterstütze das TON-Netzwerk. Du behältst jederzeit die volle Kontrolle über deine Coins – 
+    wir verwahren <strong>keine Gelder</strong> und haben <strong>keinen Zugriff</strong> auf deine Private Keys.
+  </p>
+  
+  <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-top: 32px;">
     <a class="btn btn-primary" href="{{ url_for('recommended_pool') }}" style="background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%); color: #000; font-weight: bold; box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);">
       ⭐ Unser empfohlener Pool
     </a>
+    <a class="btn" href="{{ url_for('pools') }}" style="background: #36d7b7;">Alle Pools anzeigen</a>
     <a class="btn" href="{{ url_for('dashboard') }}">Zum Dashboard</a>
   </div>
 </section>
 
+<!-- Was ist TON Staking? -->
+<section style="background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%); border-radius: 12px; padding: 32px; margin: 48px 0;">
+  <h2 style="text-align: center; color: #36d7b7; margin-bottom: 24px;">💡 Was ist TON Staking?</h2>
+  <div style="max-width: 800px; margin: 0 auto; line-height: 1.8;">
+    <p>
+      <strong>Staking</strong> bedeutet, dass du deine TON-Coins an einen Validator-Pool delegierst. 
+      Diese Validatoren sichern das TON-Netzwerk und verarbeiten Transaktionen. Als Belohnung für deine 
+      Unterstützung erhältst du regelmäßige Staking-Rewards (typisch 3-5% APY).
+    </p>
+    <p style="margin-top: 16px;">
+      <strong>Wichtig:</strong> Deine Coins bleiben in deinem Besitz! Sie werden nur "gesperrt" 
+      (nicht übertragen). Du kannst sie jederzeit zurückfordern – allerdings mit einer Wartezeit 
+      (Unbonding Period) von typischerweise 2-4 Tagen.
+    </p>
+  </div>
+</section>
+
+<!-- Wie funktioniert es? -->
 <section>
-  <h2>Warum über unsere Plattform?</h2>
-  <ul class="grid-3">
-    <li><strong>Einfach:</strong> Verbindung via TonConnect, klare Schritte, keine Registrierung.</li>
-    <li><strong>Sicher:</strong> Keine Verwahrung von Geldern, keine privaten Schlüssel bei uns.</li>
-    <li><strong>Transparent:</strong> Deutsche Rechtstexte, klare Risiken, variable Rewards.</li>
+  <h2 style="text-align: center; margin-bottom: 32px;">🚀 So funktioniert's – in 3 einfachen Schritten</h2>
+  
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 32px;">
+    <div class="card" style="text-align: center; padding: 32px; background: linear-gradient(135deg, #1e3a5f 0%, #0d1929 100%); border: 2px solid #36d7b7;">
+      <div style="font-size: 3em; margin-bottom: 16px;">1️⃣</div>
+      <h3 style="color: #36d7b7; margin-bottom: 16px;">Wallet verbinden</h3>
+      <p>
+        Verbinde deine TON-Wallet (Tonkeeper, Tonhub, MyTonWallet) über das sichere TonConnect-Protokoll. 
+        Keine Registrierung, keine E-Mail, keine Private Keys werden gespeichert.
+      </p>
+    </div>
+    
+    <div class="card" style="text-align: center; padding: 32px; background: linear-gradient(135deg, #3a1e5f 0%, #1a0d29 100%); border: 2px solid #ffd700;">
+      <div style="font-size: 3em; margin-bottom: 16px;">2️⃣</div>
+      <h3 style="color: #ffd700; margin-bottom: 16px;">Pool auswählen</h3>
+      <p>
+        Wähle einen Staking-Pool aus unserer kuratierten Liste. Jeder Pool zeigt Gebühren, 
+        Minimum-Stake und Sicherheitsinfos. Unser empfohlener Pool ist <strong>TON Whales</strong> 
+        (offizieller Pool der TON Foundation).
+      </p>
+    </div>
+    
+    <div class="card" style="text-align: center; padding: 32px; background: linear-gradient(135deg, #1e5f3a 0%, #0d2919 100%); border: 2px solid #ffa500;">
+      <div style="font-size: 3em; margin-bottom: 16px;">3️⃣</div>
+      <h3 style="color: #ffa500; margin-bottom: 16px;">Betrag eingeben & staken</h3>
+      <p>
+        Gib den gewünschten Betrag ein (mindestens 10-50 TON je nach Pool). Bestätige die Transaktion 
+        in deiner Wallet. Fertig! Du erhältst automatisch Rewards alle 24-48 Stunden.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Vorteile -->
+<section>
+  <h2 style="text-align: center; margin-bottom: 32px;">✨ Warum über unser Portal?</h2>
+  <ul class="grid-3" style="list-style: none; padding: 0;">
+    <li class="card" style="padding: 24px;">
+      <div style="font-size: 2.5em; text-align: center; margin-bottom: 12px;">🔒</div>
+      <strong style="color: #36d7b7; font-size: 1.2em;">Non-Custodial</strong>
+      <p style="margin-top: 8px;">
+        Wir verwahren keine Gelder und haben keinen Zugriff auf deine Private Keys. 
+        Alle Transaktionen werden nur in deiner eigenen Wallet signiert.
+      </p>
+    </li>
+    <li class="card" style="padding: 24px;">
+      <div style="font-size: 2.5em; text-align: center; margin-bottom: 12px;">🎯</div>
+      <strong style="color: #36d7b7; font-size: 1.2em;">Kuratierte Pools</strong>
+      <p style="margin-top: 8px;">
+        Wir zeigen nur geprüfte Pools mit Audits, guter Reputation und transparenter Historie. 
+        Keine Scam-Pools, keine versteckten Gebühren.
+      </p>
+    </li>
+    <li class="card" style="padding: 24px;">
+      <div style="font-size: 2.5em; text-align: center; margin-bottom: 12px;">🌐</div>
+      <strong style="color: #36d7b7; font-size: 1.2em;">Open Source & Transparent</strong>
+      <p style="margin-top: 8px;">
+        Unsere Software basiert auf offenen Standards (TonConnect, TON SDK). 
+        Keine Black Box, keine versteckten Prozesse.
+      </p>
+    </li>
+        <li class="card" style="padding: 24px;">
+      <div style="font-size: 2.5em; text-align: center; margin-bottom: 12px;">⚡</div>
+      <strong style="color: #36d7b7; font-size: 1.2em;">Einfache Bedienung</strong>
+      <p style="margin-top: 8px;">
+        Keine Registrierung, keine KYC, keine komplizierten Prozesse. 
+        Wallet verbinden, Pool wählen, staken – fertig in unter 2 Minuten.
+      </p>
+    </li>
+    <li class="card" style="padding: 24px;">
+      <div style="font-size: 2.5em; text-align: center; margin-bottom: 12px;">📊</div>
+      <strong style="color: #36d7b7; font-size: 1.2em;">Transparente Daten</strong>
+      <p style="margin-top: 8px;">
+        Alle Pool-Informationen (Gebühren, APY, Audits) sind öffentlich einsehbar. 
+        Keine versteckten Kosten, keine Überraschungen.
+      </p>
+    </li>
+    <li class="card" style="padding: 24px;">
+      <div style="font-size: 2.5em; text-align: center; margin-bottom: 12px;">🇩🇪</div>
+      <strong style="color: #36d7b7; font-size: 1.2em;">Deutsche Rechtssicherheit</strong>
+      <p style="margin-top: 8px;">
+        Betrieben aus Deutschland mit vollständigem Impressum, Datenschutz (DSGVO) und AGB. 
+        Keine Offshore-Firma, keine Anonymität.
+      </p>
+    </li>
+  </ul>
+</section>
+
+<!-- Risiken -->
+<section style="background: #2a1a1a; border: 2px solid #f90; border-radius: 12px; padding: 32px; margin: 48px 0;">
+  <h2 style="text-align: center; color: #f90; margin-bottom: 24px;">⚠️ Wichtige Risiken beachten!</h2>
+  <div style="max-width: 800px; margin: 0 auto; line-height: 1.8;">
+    <p>
+      <strong>Staking ist KEIN risikofreies Investment!</strong> Bitte beachte folgende Risiken:
+    </p>
+    <ul style="margin-top: 16px; line-height: 2;">
+      <li><strong>Marktrisiko:</strong> Der TON-Preis kann stark schwanken. Staking-Rewards können Kursverluste nicht ausgleichen.</li>
+      <li><strong>Smart Contract Risiko:</strong> Bugs in Pool-Contracts können zu Verlusten führen.</li>
+      <li><strong>Validator-Risiko:</strong> Fehlerhafte Validatoren können bestraft werden (Slashing).</li>
+      <li><strong>Liquiditätsrisiko:</strong> Gestakte Coins sind für 2-4 Tage gesperrt (Unbonding).</li>
+    </ul>
+    <p style="margin-top: 16px; font-weight: bold; color: #ffd700;">
+      🛡️ Wir empfehlen: Niemals mehr staken, als du bereit bist zu verlieren. 
+      Recherchiere selbst (DYOR) und diversifiziere dein Portfolio!
+    </p>
+    <div style="text-align: center; margin-top: 24px;">
+      <a class="btn" href="{{ url_for('agb') }}" style="background: #f90; color: #000;">Vollständiger Disclaimer in AGB</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section style="text-align: center; padding: 48px 0;">
+  <h2 style="margin-bottom: 24px;">Bereit zum Starten?</h2>
+  <p style="font-size: 1.1em; margin-bottom: 32px; max-width: 600px; margin-left: auto; margin-right: auto;">
+    Verbinde deine Wallet und beginne, passives Einkommen mit TON zu verdienen. 
+    Keine Registrierung erforderlich!
+  </p>
+  <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+    <a class="btn btn-primary" href="{{ url_for('dashboard') }}" style="font-size: 1.2em; padding: 16px 32px;">Jetzt Staking starten →</a>
+    <a class="btn btn-secondary" href="{{ url_for('how') }}">Wie es funktioniert</a>
+    <a class="btn btn-secondary" href="{{ url_for('faq') }}">FAQ</a>
+  </div>
+</section>
+{% endblock %}
   </ul>
 </section>
 {% endblock %}

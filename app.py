@@ -124,6 +124,21 @@ def recommended_pool():
     """Детальна інформація про рекомендований пул"""
     return render_template("recommended-pool.html", title="Рекомендований пул")
 
+@app.route("/impressum")
+def impressum():
+    """Impressum (Pflichtangaben nach TMG)"""
+    return render_template("impressum.html", title="Impressum")
+
+@app.route("/datenschutz")
+def datenschutz():
+    """Datenschutzerklärung (DSGVO)"""
+    return render_template("datenschutz.html", title="Datenschutz")
+
+@app.route("/agb")
+def agb():
+    """Allgemeine Geschäftsbedingungen"""
+    return render_template("agb.html", title="AGB")
+
 @app.route("/test-tonconnect")
 def test_tonconnect():
     return render_template("test-tonconnect.html", title="TonConnect Test")
