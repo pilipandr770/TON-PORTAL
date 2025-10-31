@@ -73,97 +73,98 @@
       // Показати кнопку якщо вона прихована
       buttonContainer.style.display = 'block';
 
-    // Базова діагностика в консоль
-    tonConnectUI.onStatusChange(async (walletInfo) => {
-      console.log('[TonConnect] status change:', walletInfo);
-      
-      const statusEl = document.getElementById('wallet-status');
-      const addrEl = document.getElementById('addr');
-      const btnRefresh = document.getElementById('btn-refresh');
-      const netEl = document.getElementById('net');
-      const balEl = document.getElementById('bal');
+      // Базова діагностика в консоль
+      tonConnectUI.onStatusChange(async (walletInfo) => {
+        console.log('[TonConnect] 🔔 STATUS CHANGE EVENT!');
+        console.log('[TonConnect] walletInfo:', walletInfo);
+        
+        const statusEl = document.getElementById('wallet-status');
+        const addrEl = document.getElementById('addr');
+        const btnRefresh = document.getElementById('btn-refresh');
+        const netEl = document.getElementById('net');
+        const balEl = document.getElementById('bal');
 
-      if (walletInfo) {
-        const account = walletInfo.account;
-        const address = account?.address || '—';
-        
-        console.log('[TonConnect] ✅ Wallet connected! Address:', address);
-        
-        statusEl && (statusEl.textContent = 'Verbunden.');
-        addrEl && (addrEl.textContent = address);
-        btnRefresh && btnRefresh.removeAttribute('disabled');
-        
-        // Автоматично завантажити баланс
-        if (address && address !== '—') {
+        if (walletInfo && walletInfo.account) {
+          const account = walletInfo.account;
+          const address = account.address || '—';
+          
+          console.log('[TonConnect] ✅ Wallet connected! Address:', address);
+          
+          statusEl && (statusEl.textContent = 'Verbunden.');
+          addrEl && (addrEl.textContent = address);
+          btnRefresh && btnRefresh.removeAttribute('disabled');
+          
+          // Автоматично завантажити баланс
+          if (address && address !== '—') {
+            try {
+              netEl && (netEl.textContent = 'Wird geladen...');
+              balEl && (balEl.textContent = '...');
+              
+              const res = await fetch(`/api/balance/${address}`);
+              const data = await res.json();
+              
+              if (data && !data.error) {
+                balEl && (balEl.textContent = (data.balance_ton || 0).toFixed(4));
+                netEl && (netEl.textContent = data.network || 'mainnet');
+                console.log('[TonConnect] Balance loaded:', data.balance_ton, 'TON');
+              } else {
+                netEl && (netEl.textContent = '—');
+                balEl && (balEl.textContent = '—');
+              }
+            } catch (e) {
+              console.error('[TonConnect] Error loading balance:', e);
+              netEl && (netEl.textContent = '—');
+              balEl && (balEl.textContent = '—');
+            }
+          }
+        } else {
+          console.log('[TonConnect] Wallet disconnected');
+          
+          statusEl && (statusEl.textContent = 'Noch nicht verbunden.');
+          addrEl && (addrEl.textContent = '—');
+          netEl && (netEl.textContent = '—');
+          balEl && (balEl.textContent = '—');
+          btnRefresh && btnRefresh.setAttribute('disabled', 'true');
+        }
+      });
+
+      // Якщо сесія відновлена (корисно після перезавантаження)
+      tonConnectUI.connectionRestored.then(restored => {
+        console.log('[TonConnect] connectionRestored:', restored);
+      });
+
+      // Клік "Aktualisieren" → запит балансу через наш бекенд
+      const btnRefresh = document.getElementById('btn-refresh');
+      if (btnRefresh) {
+        btnRefresh.addEventListener('click', async () => {
+          const addr = document.getElementById('addr')?.textContent;
+          const netEl = document.getElementById('net');
+          const balEl = document.getElementById('bal');
+          
+          if (!addr || addr === '—') return;
+          
           try {
             netEl && (netEl.textContent = 'Wird geladen...');
             balEl && (balEl.textContent = '...');
             
-            const res = await fetch(`/api/balance/${address}`);
+            const res = await fetch(`/api/balance/${addr}`);
             const data = await res.json();
             
             if (data && !data.error) {
               balEl && (balEl.textContent = (data.balance_ton || 0).toFixed(4));
               netEl && (netEl.textContent = data.network || 'mainnet');
-              console.log('[TonConnect] Balance loaded:', data.balance_ton, 'TON');
             } else {
+              console.error('Balance API error:', data.error);
               netEl && (netEl.textContent = '—');
               balEl && (balEl.textContent = '—');
             }
           } catch (e) {
-            console.error('[TonConnect] Error loading balance:', e);
-            netEl && (netEl.textContent = '—');
+            console.error('Error refreshing balance:', e);
+            netEl && (netEl.textContent = 'Fehler');
             balEl && (balEl.textContent = '—');
           }
-        }
-      } else {
-        console.log('[TonConnect] Wallet disconnected');
-        
-        statusEl && (statusEl.textContent = 'Noch nicht verbunden.');
-        addrEl && (addrEl.textContent = '—');
-        netEl && (netEl.textContent = '—');
-        balEl && (balEl.textContent = '—');
-        btnRefresh && btnRefresh.setAttribute('disabled', 'true');
+        });
       }
-    });
-
-    // Якщо сесія відновлена (корисно після перезавантаження)
-    tonConnectUI.connectionRestored.then(restored => {
-      console.log('[TonConnect] connectionRestored:', restored);
-    });
-
-    // Клік "Aktualisieren" → запит балансу через наш бекенд
-    const btnRefresh = document.getElementById('btn-refresh');
-    if (btnRefresh) {
-      btnRefresh.addEventListener('click', async () => {
-        const addr = document.getElementById('addr')?.textContent;
-        const netEl = document.getElementById('net');
-        const balEl = document.getElementById('bal');
-        
-        if (!addr || addr === '—') return;
-        
-        try {
-          netEl && (netEl.textContent = 'Wird geladen...');
-          balEl && (balEl.textContent = '...');
-          
-          const res = await fetch(`/api/balance/${addr}`);
-          const data = await res.json();
-          
-          if (data && !data.error) {
-            balEl && (balEl.textContent = (data.balance_ton || 0).toFixed(4));
-            netEl && (netEl.textContent = data.network || 'mainnet');
-          } else {
-            console.error('Balance API error:', data.error);
-            netEl && (netEl.textContent = '—');
-            balEl && (balEl.textContent = '—');
-          }
-        } catch (e) {
-          console.error('Error refreshing balance:', e);
-          netEl && (netEl.textContent = 'Fehler');
-          balEl && (balEl.textContent = '—');
-        }
-      });
-    }
 
       // Експорт для відправки транзакцій
       window.__tonConnectUI__ = tonConnectUI;
