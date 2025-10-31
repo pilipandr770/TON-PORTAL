@@ -2,43 +2,87 @@
   "items": [
     {
       "name": "Tonkeeper Pool",
+      "type": "lst",
       "address": "EQCkWxfyhAkim3g2DjKQQg8T5P4g-Q1-K_jErGcDJI4H3Ysc",
       "url": "https://tonkeeper.com/",
       "fee": 0.05,
       "min_stake_ton": 10,
-      "description": "Official Tonkeeper liquid staking with instant withdrawals"
+      "description": "Official Tonkeeper liquid staking with instant withdrawals",
+      "audits": [
+        "https://tonkeeper.com/security"
+      ],
+      "docs_url": "https://tonkeeper.com/",
+      "faq_url": "https://tonkeeper.com/",
+      "tos_url": "https://tonkeeper.com/terms",
+      "lst_token": "tsTON",
+      "lst_risk_note": "LST додає ризик ліквідності та смарт-контрактів. Миттєвий вихід через DEX за ринковою ціною."
     },
     {
       "name": "Bemo Finance",
+      "type": "lst",
       "address": "EQC8rUZqR_pWV1BylWUlPNBzyiTYVoBEmQkMIQDZXICfnuRr",
       "url": "https://app.bemo.finance/",
       "fee": 0.04,
       "min_stake_ton": 1,
-      "description": "Bemo liquid staking - stake any amount, get stTON tokens"
+      "description": "Bemo liquid staking - stake any amount, get stTON tokens",
+      "audits": [
+        "https://github.com/bemo-finance/audits"
+      ],
+      "docs_url": "https://docs.bemo.finance/",
+      "faq_url": "https://docs.bemo.finance/faq",
+      "tos_url": "https://bemo.finance/terms",
+      "defillama_slug": "bemo",
+      "lst_token": "stTON",
+      "lst_risk_note": "LST: за необхідності миттєвого виходу можлива просадка ціни на DEX. Ризик смарт-контрактів."
     },
     {
       "name": "TON Whales",
+      "type": "native",
       "address": "EQDFvnxuyA2ogNPOoEj1lu968U8_eFpz2G9DXBPkPRjEctGF",
       "url": "https://tonwhales.com/",
       "fee": 0.05,
       "min_stake_ton": 50,
-      "description": "TON Whales nominator pool - one of the first staking services"
+      "description": "TON Whales nominator pool - one of the first staking services",
+      "audits": [
+        "https://tonwhales.com/security"
+      ],
+      "docs_url": "https://tonwhales.com/staking",
+      "faq_url": "https://tonwhales.com/staking#faq",
+      "tos_url": "https://tonwhales.com/terms"
     },
     {
       "name": "Tonstakers",
+      "type": "native",
       "address": "EQAhE3sLxHZpsyZ_OVoXoOjuBnBKL3vOk1_3TvYvYnqfqx-v",
       "url": "https://tonstakers.com/",
       "fee": 0.05,
       "min_stake_ton": 100,
-      "description": "Community-run nominator pool with competitive fees"
+      "description": "Community-run nominator pool with competitive fees",
+      "audits": [
+        "https://skynet.certik.com/projects/tonstakers"
+      ],
+      "docs_url": "https://docs.tonstakers.com/",
+      "faq_url": "https://docs.tonstakers.com/faq",
+      "tos_url": "https://tonstakers.com/terms",
+      "defillama_slug": "tonstakers"
     },
     {
       "name": "Hipo Finance",
+      "type": "lst",
       "address": "EQCLyZHP4Xe8fpchQz76O-_RmUhaVc_9BAoGyJrwJrcbz2eZ",
       "url": "https://app.hipo.finance/",
       "fee": 0.03,
       "min_stake_ton": 1,
-      "description": "Hipo liquid staking - low fees, get hTON tokens"
+      "description": "Hipo liquid staking - low fees, get hTON tokens",
+      "audits": [
+        "https://github.com/HipoFinance/contract/blob/main/audits/Quantstamp-Audit.pdf"
+      ],
+      "docs_url": "https://docs.hipo.finance/",
+      "faq_url": "https://docs.hipo.finance/faq",
+      "tos_url": "https://hipo.finance/terms",
+      "defillama_slug": "hipo-finance",
+      "lst_token": "hTON",
+      "lst_risk_note": "LST: ризик смарт-контрактів та ліквідності DEX при швидкому виході. Можлива просадка ціни."
     }
   ]
 }

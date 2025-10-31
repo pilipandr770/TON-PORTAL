@@ -283,6 +283,135 @@ def docs():
 def openapi_yaml():
     return send_from_directory(".", "openapi.yaml", mimetype="text/yaml")
 
+# ---- Security Check Helpers ----
+def _load_pools_list():
+    """Helper для завантаження pools.json"""
+    pools_path = os.path.join(app.root_path, "data", "pools.json")
+    with open(pools_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return data.get("items", [])
+
+def toncenter_base(mainnet: bool) -> str:
+    return "https://toncenter.com/api/v2" if mainnet else "https://testnet.toncenter.com/api/v2"
+
+def tc_headers():
+    api_key = app.config.get("TONCENTER_API_KEY", "")
+    return {"X-API-Key": api_key} if api_key else {}
+
+def tc_get_account_info(address: str) -> dict:
+    """Отримати інформацію про контракт через Toncenter V2"""
+    mainnet = app.config.get("TON_MAINNET", True)
+    base = toncenter_base(mainnet)
+    url = f"{base}/getAddressInformation"
+    r = requests.get(url, params={"address": address}, headers=tc_headers(), timeout=10)
+    r.raise_for_status()
+    return r.json()
+
+def tc_try_run_get_method(address: str, method: str) -> dict | None:
+    """Спробувати виконати get-метод контракту"""
+    mainnet = app.config.get("TON_MAINNET", True)
+    base = toncenter_base(mainnet)
+    url = f"{base}/runGetMethod"
+    try:
+        r = requests.get(url, params={"address": address, "method": method}, headers=tc_headers(), timeout=10)
+        if r.status_code != 200:
+            return None
+        data = r.json()
+        return data if data.get("ok") else None
+    except Exception:
+        return None
+
+def llama_tvl(slug: str) -> float | None:
+    """Отримати TVL з DeFiLlama"""
+    try:
+        r = requests.get(f"https://api.llama.fi/tvl/{slug}", timeout=10)
+        if r.status_code == 200:
+            data = r.json()
+            # DeFiLlama може повертати різні формати
+            if isinstance(data, list) and data:
+                return float(data[-1].get("totalLiquidityUSD") or data[-1].get("tvl") or 0.0)
+            if isinstance(data, (int, float)):
+                return float(data)
+            if isinstance(data, dict):
+                return float(data.get("tvl", 0.0))
+    except Exception as e:
+        logger.warning(f"DeFiLlama TVL fetch failed for {slug}: {e}")
+    return None
+
+@app.route("/api/pool/<address>/security")
+@cache.cached(timeout=60)
+@limiter.limit("30 per minute")
+def api_pool_security(address: str):
+    """
+    Аггрегує метадані з pools.json, ончейн-інфо з Toncenter, TVL з DeFiLlama.
+    Повертає JSON для модалки безпеки.
+    """
+    try:
+        # 1) Знайти пул у каталозі
+        pool = None
+        for p in _load_pools_list():
+            if p.get("address") == address:
+                pool = p
+                break
+        
+        if not pool:
+            return jsonify({"error": "pool_not_found"}), 404
+
+        # 2) Ончейн-дані (balance, code_hash; власник через get-методи)
+        onchain = {}
+        try:
+            info = tc_get_account_info(address)
+            result = info.get("result", {})
+            onchain["balance_nano"] = int(result.get("balance", 0))
+            onchain["balance_ton"] = onchain["balance_nano"] / 1e9
+            onchain["code_hash"] = result.get("code_hash") or result.get("codeHash") or None
+        except Exception as e:
+            onchain["error"] = "toncenter_unavailable"
+            logger.warning(f"Toncenter getAddressInformation failed: {e}")
+
+        # Спроба визначити owner/admin
+        owner = {"detected": False, "method": None, "value": None}
+        for method_name in ["get_owner", "owner", "get_admin", "admin", "owner_address"]:
+            out = tc_try_run_get_method(address, method_name)
+            if out and out.get("stack"):
+                owner["detected"] = True
+                owner["method"] = method_name
+                owner["value"] = out.get("stack")
+                break
+
+        # 3) TVL з DeFiLlama (якщо є slug)
+        tvl_usd = None
+        if pool.get("defillama_slug"):
+            tvl_usd = llama_tvl(pool["defillama_slug"])
+
+        # 4) Зібрати відповідь
+        import time
+        res = {
+            "pool": {
+                "name": pool.get("name"),
+                "type": pool.get("type"),
+                "address": pool.get("address"),
+                "url": pool.get("url"),
+                "fee": pool.get("fee"),
+                "min_stake_ton": pool.get("min_stake_ton"),
+                "audits": pool.get("audits", []),
+                "docs_url": pool.get("docs_url"),
+                "faq_url": pool.get("faq_url"),
+                "tos_url": pool.get("tos_url"),
+                "lst_token": pool.get("lst_token"),
+                "lst_risk_note": pool.get("lst_risk_note")
+            },
+            "onchain": onchain,
+            "owner_probe": owner,
+            "tvl_usd": tvl_usd,
+            "generated_at": int(time.time())
+        }
+        return jsonify(res)
+        
+    except Exception as e:
+        logger.exception("Security endpoint error")
+        return jsonify({"error": "internal_error", "details": str(e)}), 500
+
 # ---- Errors ----
 @app.errorhandler(404)
 def h_404(e):

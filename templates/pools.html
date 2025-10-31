@@ -2,37 +2,65 @@
 {% extends "base.html" %}
 {% block content %}
 <h1>TON Pools</h1>
-<p>Dies ist ein kuratierter Katalog von Pools. Delegationen werden ausschließlich im eigenen Wallet signiert.</p>
+<p>Оберіть пул для стейкінгу. Натисніть <strong>"Перевірка безпеки"</strong> для автоматичного аудиту (метадані + ончейн-дані).</p>
+<p>Усі делегації підписуються виключно у вашому власному гаманці. Ми не зберігаємо ваші кошти.</p>
 
 <div id="pools-container">
-  <p>Laden...</p>
+  <p>⏳ Завантаження пулів...</p>
 </div>
+
+{% include "partials/pool_security_modal.html" %}
 
 <script>
   async function loadPools() {
     const el = document.getElementById('pools-container');
-    el.innerHTML = '<p>Laden...</p>';
+    el.innerHTML = '<p>⏳ Завантаження пулів...</p>';
     try {
       const res = await fetch('/api/pools');
       const data = await res.json();
       if (data.items && Array.isArray(data.items)) {
-        el.innerHTML = data.items.map(p => `
-          <div class="card" style="margin:12px 0;">
-            <h3>${p.name}</h3>
-            <p><strong>Adresse:</strong> <code>${p.address}</code></p>
-            <p><strong>Fee:</strong> ${(p.fee * 100).toFixed(1)} %</p>
-            <p><strong>Min Stake:</strong> ${p.min_stake_ton} TON</p>
-            <p><a href="${p.url}" target="_blank" rel="noopener">Pool-Website</a></p>
-          </div>
-        `).join('');
+        console.log('Loaded pools:', data.items.length);
+        el.innerHTML = data.items.map(p => {
+          const typeBadge = p.type === 'lst' 
+            ? '<span class="badge" style="background: #2a1f3a; color: #d084ff;">LST</span>' 
+            : '<span class="badge" style="background: #1f3a2a; color: #84ffd0;">Native</span>';
+          
+          return `
+            <div class="card" style="margin:12px 0;">
+              <div style="display: flex; justify-content: space-between; align-items: start;">
+                <div>
+                  <h3>${p.name} ${typeBadge}</h3>
+                  ${p.description ? `<p style="color: #a0a0a0; font-size: 0.9em; margin: 4px 0;">${p.description}</p>` : ''}
+                </div>
+                <button class="btn btn-secondary" onclick="PoolSec.open('${p.address}')" style="flex-shrink: 0;">
+                  🔐 Перевірка безпеки
+                </button>
+              </div>
+              
+              <div style="margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div>
+                  <p><strong>Адреса:</strong><br/><code style="font-size: 0.85em; word-break: break-all;">${p.address}</code></p>
+                  <p><strong>Fee:</strong> ${(p.fee * 100).toFixed(1)} %</p>
+                  <p><strong>Min Stake:</strong> ${p.min_stake_ton} TON</p>
+                </div>
+                <div>
+                  ${p.lst_token ? `<p><strong>LST Token:</strong> ${p.lst_token}</p>` : ''}
+                  <p><a href="${p.url}" target="_blank" rel="noopener" class="btn btn-secondary" style="display: inline-block; margin-top: 8px;">🌐 Сайт пулу →</a></p>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
       } else {
-        el.innerHTML = '<p>Keine Daten.</p>';
+        el.innerHTML = '<p>❌ Немає даних про пули.</p>';
       }
     } catch (e) {
       console.error('Error loading pools:', e);
-      el.innerHTML = '<p>Fehler beim Laden der Pool-Daten.</p>';
+      el.innerHTML = '<p>❌ Помилка при завантаженні пулів.</p>';
     }
   }
+  
   window.addEventListener('DOMContentLoaded', loadPools);
 </script>
+<script src="{{ url_for('static', filename='js/pool-security.js') }}"></script>
 {% endblock %}

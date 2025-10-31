@@ -1,0 +1,103 @@
+<!-- file: templates/partials/pool_security_modal.html -->
+<div id="pool-sec-modal" class="sec-modal hidden">
+  <div class="sec-backdrop"></div>
+  <div class="sec-card">
+    <div class="sec-header">
+      <h3 id="sec-title">Security Check</h3>
+      <button id="sec-close" class="btn btn-secondary">×</button>
+    </div>
+    <div id="sec-body" class="sec-body">
+      <!-- контент рендериться JS -->
+    </div>
+  </div>
+</div>
+
+<style>
+.sec-modal.hidden { display: none; }
+.sec-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+}
+.sec-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+.sec-card {
+  position: relative;
+  max-width: 780px;
+  margin: 5vh auto;
+  background: #0f1520;
+  color: #e8edf5;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  padding: 16px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+.sec-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #1e2a3b;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+.sec-body {
+  padding: 12px 4px;
+}
+.sec-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 768px) {
+  .sec-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #1f2a3a;
+  color: #84d0ff;
+  font-size: 12px;
+  margin-right: 6px;
+}
+.badge.lst {
+  background: #2a1f3a;
+  color: #d084ff;
+}
+.badge.native {
+  background: #1f3a2a;
+  color: #84ffd0;
+}
+.badge.audit {
+  background: #3a2a1f;
+  color: #ffd084;
+}
+.kv {
+  margin: 6px 0;
+  line-height: 1.6;
+}
+.kv strong {
+  display: inline-block;
+  width: 160px;
+  color: #84d0ff;
+}
+.list {
+  margin: 6px 0 0 0;
+  padding-left: 18px;
+}
+.list li {
+  margin: 4px 0;
+}
+code {
+  background: #1e2a3b;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+</style>
