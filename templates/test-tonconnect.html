@@ -68,51 +68,89 @@
     <div class="log" id="log"></div>
 
     <!-- TonConnect UI -->
-    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js" 
+            crossorigin="anonymous" 
+            onload="window.tonConnectLoaded = true; console.log('Script loaded')"
+            onerror="window.tonConnectError = true; console.log('Script error')"></script>
     
     <script>
         const log = document.getElementById('log');
         
         function addLog(message, type = 'info') {
-            const div = document.createElement('div');
-            div.className = type;
-            div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-            log.appendChild(div);
-            log.scrollTop = log.scrollHeight;
-            console.log(message);
+            try {
+                const div = document.createElement('div');
+                div.className = type;
+                div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+                log.appendChild(div);
+                log.scrollTop = log.scrollHeight;
+                console.log(message);
+            } catch (e) {
+                console.error('Log error:', e);
+            }
         }
         
-        addLog('Страница загружена', 'info');
+        addLog('🚀 Страница загружена', 'info');
+        addLog('🚀 Страница загружена', 'info');
+        addLog('UserAgent: ' + navigator.userAgent, 'info');
         
-        // Проверка 1: Библиотека
-        setTimeout(() => {
+        // Проверка 1: Библиотека (с несколькими попытками)
+        let checkAttempt = 0;
+        const maxAttempts = 30;
+        
+        function checkLibrary() {
+            checkAttempt++;
+            addLog(`Попытка ${checkAttempt}/${maxAttempts}: проверка библиотеки...`, 'info');
+            
             const libCheck = document.getElementById('lib-check');
+            
+            if (window.tonConnectError) {
+                libCheck.innerHTML = '❌ Ошибка загрузки скрипта из CDN';
+                libCheck.style.color = '#f00';
+                addLog('❌ CDN unpkg.com недоступен или заблокирован!', 'error');
+                addLog('   Проверьте интернет или попробуйте VPN', 'warning');
+                return;
+            }
+            
             if (window.TON_CONNECT_UI) {
                 libCheck.innerHTML = '✅ window.TON_CONNECT_UI найдена';
                 libCheck.style.color = '#0f0';
-                addLog('✅ TonConnect UI библиотека загружена', 'success');
+                addLog('✅ TonConnect UI библиотека загружена!', 'success');
+                checkManifest();
             } else if (window.TonConnectUI) {
                 libCheck.innerHTML = '✅ window.TonConnectUI найдена';
                 libCheck.style.color = '#0f0';
                 addLog('✅ TonConnect UI (старая версия) загружена', 'success');
+                checkManifest();
+            } else if (checkAttempt < maxAttempts) {
+                libCheck.innerHTML = `⏳ Ожидание... (${checkAttempt}/${maxAttempts})`;
+                setTimeout(checkLibrary, 500);
             } else {
-                libCheck.innerHTML = '❌ Библиотека НЕ загружена';
+                libCheck.innerHTML = '❌ Библиотека НЕ загружена после ' + maxAttempts + ' попыток';
                 libCheck.style.color = '#f00';
-                addLog('❌ TonConnect UI НЕ загружена!', 'error');
-                return;
+                addLog('❌ TonConnect UI НЕ загружена после ' + maxAttempts + ' попыток!', 'error');
+                addLog('   Возможные причины:', 'warning');
+                addLog('   1. Медленное интернет-соединение', 'warning');
+                addLog('   2. CDN unpkg.com заблокирован', 'warning');
+                addLog('   3. CSP блокирует загрузку скрипта', 'warning');
             }
-            
+        }
+        
+        // Запускаем проверку через 1 секунду
+        setTimeout(checkLibrary, 1000);
+        
+        function checkManifest() {
             // Проверка 2: Manifest
             const manifestUrl = window.location.origin + '/tonconnect-manifest.json';
-            addLog('Проверка manifest: ' + manifestUrl, 'info');
+            addLog('📄 Проверка manifest: ' + manifestUrl, 'info');
+            
+            const manifestCheck = document.getElementById('manifest-check');
             
             fetch(manifestUrl)
                 .then(r => {
-                    const manifestCheck = document.getElementById('manifest-check');
                     if (r.ok) {
                         manifestCheck.innerHTML = '✅ Manifest доступен (HTTP ' + r.status + ')';
                         manifestCheck.style.color = '#0f0';
-                        addLog('✅ Manifest доступен: ' + r.status, 'success');
+                        addLog('✅ Manifest доступен: HTTP ' + r.status, 'success');
                         return r.json();
                     } else {
                         throw new Error('HTTP ' + r.status);
@@ -120,18 +158,24 @@
                 })
                 .then(manifest => {
                     addLog('✅ Manifest загружен: ' + manifest.name, 'success');
-                    addLog('   URL: ' + manifest.url, 'info');
+                    addLog('   URL в manifest: ' + manifest.url, 'info');
+                    addLog('   Текущий URL: ' + window.location.origin, 'info');
+                    
+                    if (manifest.url !== window.location.origin) {
+                        addLog('⚠️ ВНИМАНИЕ: URL в manifest не совпадает!', 'warning');
+                    }
                     
                     // Проверка 3: Инициализация TonConnect
                     initTonConnect();
                 })
                 .catch(err => {
-                    const manifestCheck = document.getElementById('manifest-check');
                     manifestCheck.innerHTML = '❌ Ошибка: ' + err.message;
                     manifestCheck.style.color = '#f00';
                     addLog('❌ Ошибка загрузки manifest: ' + err.message, 'error');
+                    addLog('   Manifest должен быть доступен по адресу:', 'info');
+                    addLog('   ' + manifestUrl, 'info');
                 });
-        }, 1000);
+        }
         
         function initTonConnect() {
             addLog('Инициализация TonConnect UI...', 'info');
