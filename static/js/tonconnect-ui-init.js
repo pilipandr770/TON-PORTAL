@@ -2,135 +2,79 @@
 // Ініціалізація офіційного TonConnect UI (кнопка + модал з QR та списком гаманців)
 
 (function () {
-  console.log('Initializing TonConnect UI...');
+  console.log('[TonConnect] Initializing TonConnect UI...');
+  
+  // Перевірка завантаження UI
+  if (!window.TON_CONNECT_UI) {
+    alert("TonConnect UI не завантажився. Натисніть F5.\n(перевір CDN / CSP)");
+    return;
+  }
+
+  // Швидка перевірка маніфесту: origin повинен збігатися з location.origin
+  fetch('/tonconnect-manifest.json')
+    .then(r => r.json())
+    .then(man => {
+      try {
+        const u = new URL(man.url);
+        if (u.origin !== window.location.origin) {
+          console.warn('[TonConnect] Manifest URL origin mismatch:', u.origin, 'vs', window.location.origin);
+          alert("Увага: у tonconnect-manifest.json інший домен у полі 'url'. Виправте на ваш Render-домен.");
+        } else {
+          console.log('[TonConnect] ✅ Manifest origin matches:', u.origin);
+        }
+      } catch(e) { 
+        console.error('[TonConnect] Error parsing manifest URL:', e);
+      }
+    })
+    .catch(err => {
+      console.error('[TonConnect] Failed to fetch manifest:', err);
+    });
   
   // Функція ініціалізації з повторними спробами
   function initTonConnectUI(attempt = 0) {
     const maxAttempts = 10;
-    
-    // Перевіряємо наявність бібліотеки UI в різних можливих місцях
-    // Бібліотека може експортуватись як:
-    // - window.TonConnectUI (старі версії)
-    // - window.TON_CONNECT_UI.TonConnectUI (нові версії)
-    let TonConnectUIClass = null;
-    
-    if (typeof window.TonConnectUI !== 'undefined') {
-      TonConnectUIClass = window.TonConnectUI;
-      console.log('Found TonConnectUI at window.TonConnectUI');
-    } else if (typeof window.TON_CONNECT_UI !== 'undefined' && window.TON_CONNECT_UI.TonConnectUI) {
-      TonConnectUIClass = window.TON_CONNECT_UI.TonConnectUI;
-      console.log('Found TonConnectUI at window.TON_CONNECT_UI.TonConnectUI');
-    }
-    
-    if (!TonConnectUIClass) {
-      if (attempt < maxAttempts) {
-        console.log(`Waiting for TonConnect UI library... (attempt ${attempt + 1}/${maxAttempts})`);
-        setTimeout(() => initTonConnectUI(attempt + 1), 200);
-        return;
-      } else {
-        console.error('TonConnect UI library not loaded after', maxAttempts, 'attempts!');
-        console.error('Available globals:', Object.keys(window).filter(k => k.toLowerCase().includes('ton')));
-        alert("TonConnect UI Bibliothek konnte nicht geladen werden.\nBitte laden Sie die Seite neu (F5).");
-        return;
-      }
-    }
 
     // Перевірка наявності елемента для кнопки
     const buttonContainer = document.getElementById('tonconnect-ui-button');
     if (!buttonContainer) {
-      console.warn('Button container #tonconnect-ui-button not found yet, waiting...');
+      console.warn('[TonConnect] Button container #tonconnect-ui-button not found yet, waiting...');
       if (attempt < maxAttempts) {
         setTimeout(() => initTonConnectUI(attempt + 1), 200);
         return;
       } else {
-        console.error('Button container not found after', maxAttempts, 'attempts');
-        // Створюємо без кнопки (тільки для програмного виклику)
-        createInstanceWithoutButton(TonConnectUIClass);
+        console.error('[TonConnect] Button container not found after', maxAttempts, 'attempts');
         return;
       }
     }
 
     try {
-      console.log('TonConnect UI library found, creating instance with button...');
+      console.log('[TonConnect] Creating TonConnect UI instance...');
       
-      // Створюємо UI-екземпляр і "вмонтовуємо" кнопку в елемент з id=tonconnect-ui-button
-      const tonConnectUI = new TonConnectUIClass({
-        manifestUrl: window.location.origin + '/tonconnect-manifest.json',
-        buttonRootId: 'tonconnect-ui-button',
-        actionsConfiguration: {
-          twaReturnUrl: window.location.origin
-        },
-        walletsListConfiguration: {
-          includeWallets: [
-            {
-              appName: "tonkeeper",
-              name: "Tonkeeper",
-              imageUrl: "https://tonkeeper.com/assets/tonconnect-icon.png",
-              aboutUrl: "https://tonkeeper.com",
-              universalLink: "https://app.tonkeeper.com/ton-connect",
-              bridgeUrl: "https://bridge.tonapi.io/bridge",
-              platforms: ["ios", "android", "chrome", "firefox"]
-            },
-            {
-              appName: "mytonwallet",
-              name: "MyTonWallet",
-              imageUrl: "https://static.mytonwallet.io/icon-256.png",
-              aboutUrl: "https://mytonwallet.io",
-              universalLink: "https://connect.mytonwallet.org",
-              bridgeUrl: "https://tonconnectbridge.mytonwallet.org/bridge",
-              platforms: ["chrome", "windows", "macos", "linux"]
-            }
-          ]
-        }
+      // Ініціалізація UI
+      const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+        manifestUrl: '/tonconnect-manifest.json',
+        buttonRootId: 'tonconnect-ui-button'
       });
 
-      console.log('TonConnect UI instance created successfully with button');
-      console.log('Manifest URL:', window.location.origin + '/tonconnect-manifest.json');
-      
-      // Логування підключення
-      console.log('Waiting for wallet connection...');
-      console.log('TonConnectUI instance:', tonConnectUI);
-      console.log('Current wallet:', tonConnectUI.wallet);
-      console.log('Connected:', tonConnectUI.connected);
-      
-      // Перевірка стану через 2 секунди
-      setTimeout(() => {
-        console.log('=== Status check after 2s ===');
-        console.log('Connected:', tonConnectUI.connected);
-        console.log('Wallet:', tonConnectUI.wallet);
-      }, 2000);
+      console.log('[TonConnect] ✅ TonConnect UI instance created');
+      console.log('[TonConnect] Current state - Connected:', tonConnectUI.connected);
+      console.log('[TonConnect] Current wallet:', tonConnectUI.wallet);
 
-    // Коли статус з'єднання змінюється — оновлюємо інтерфейс
+    // Базова діагностика в консоль
     tonConnectUI.onStatusChange(async (walletInfo) => {
-      console.log('=== onStatusChange triggered ===');
-      console.log('Timestamp:', new Date().toISOString());
-      console.log('walletInfo:', walletInfo);
-      console.log('walletInfo type:', typeof walletInfo);
-      console.log('walletInfo keys:', walletInfo ? Object.keys(walletInfo) : 'null');
-      
-      if (!walletInfo) {
-        console.log('❌ walletInfo is null/undefined');
-      } else if (!walletInfo.account) {
-        console.log('❌ walletInfo.account is missing');
-      } else {
-        console.log('✅ walletInfo has account:', walletInfo.account);
-      }
+      console.log('[TonConnect] status change:', walletInfo);
       
       const statusEl = document.getElementById('wallet-status');
       const addrEl = document.getElementById('addr');
       const btnRefresh = document.getElementById('btn-refresh');
-      const btnStake = document.getElementById('btn-stake');
       const netEl = document.getElementById('net');
       const balEl = document.getElementById('bal');
 
       if (walletInfo) {
-        // Підключено
         const account = walletInfo.account;
         const address = account?.address || '—';
         
-        console.log('✅ Wallet connected successfully!');
-        console.log('Address:', address);
-        console.log('Account details:', account);
+        console.log('[TonConnect] ✅ Wallet connected! Address:', address);
         
         statusEl && (statusEl.textContent = 'Verbunden.');
         addrEl && (addrEl.textContent = address);
@@ -148,19 +92,19 @@
             if (data && !data.error) {
               balEl && (balEl.textContent = (data.balance_ton || 0).toFixed(4));
               netEl && (netEl.textContent = data.network || 'mainnet');
+              console.log('[TonConnect] Balance loaded:', data.balance_ton, 'TON');
             } else {
               netEl && (netEl.textContent = '—');
               balEl && (balEl.textContent = '—');
             }
           } catch (e) {
-            console.error('Error loading balance:', e);
+            console.error('[TonConnect] Error loading balance:', e);
             netEl && (netEl.textContent = '—');
             balEl && (balEl.textContent = '—');
           }
         }
       } else {
-        // Відключено
-        console.log('Wallet disconnected');
+        console.log('[TonConnect] Wallet disconnected');
         
         statusEl && (statusEl.textContent = 'Noch nicht verbunden.');
         addrEl && (addrEl.textContent = '—');
@@ -168,6 +112,11 @@
         balEl && (balEl.textContent = '—');
         btnRefresh && btnRefresh.setAttribute('disabled', 'true');
       }
+    });
+
+    // Якщо сесія відновлена (корисно після перезавантаження)
+    tonConnectUI.connectionRestored.then(restored => {
+      console.log('[TonConnect] connectionRestored:', restored);
     });
 
     // Клік "Aktualisieren" → запит балансу через наш бекенд
@@ -203,138 +152,12 @@
       });
     }
 
-      // Експортуємо екземпляр, щоб TonUI.sendStake могла ним користуватись
+      // Експорт для відправки транзакцій
       window.__tonConnectUI__ = tonConnectUI;
-      console.log('TonConnect UI initialization complete');
+      console.log('[TonConnect] ✅ Initialization complete');
       
     } catch (error) {
-      console.error('Failed to initialize TonConnect UI:', error);
-      console.error('Error details:', error);
-      // Не показуємо alert, якщо це проблема з buttonRootId - спробуємо без кнопки
-      if (error.message && error.message.includes('buttonRootId')) {
-        console.warn('Button element issue, trying without button...');
-        createInstanceWithoutButton(TonConnectUIClass);
-      } else {
-        alert('Fehler beim Initialisieren von TonConnect UI:\n' + error.message);
-      }
-    }
-  }
-  
-  // Функція для створення екземпляру без кнопки (fallback)
-  function createInstanceWithoutButton(TonConnectUIClass) {
-    try {
-      console.log('Creating TonConnect UI instance without button...');
-      
-      const tonConnectUI = new TonConnectUIClass({
-        manifestUrl: window.location.origin + '/tonconnect-manifest.json',
-        // Без buttonRootId - кнопка не створюється автоматично
-      });
-      
-      console.log('TonConnect UI instance created without button');
-      
-      // Той самий код для onStatusChange
-      tonConnectUI.onStatusChange(async (walletInfo) => {
-        const statusEl = document.getElementById('wallet-status');
-        const addrEl = document.getElementById('addr');
-        const btnRefresh = document.getElementById('btn-refresh');
-        const netEl = document.getElementById('net');
-        const balEl = document.getElementById('bal');
-
-        if (walletInfo) {
-          const account = walletInfo.account;
-          const address = account?.address || '—';
-          
-          console.log('Wallet connected:', address);
-          
-          statusEl && (statusEl.textContent = 'Verbunden.');
-          addrEl && (addrEl.textContent = address);
-          btnRefresh && btnRefresh.removeAttribute('disabled');
-          
-          if (address && address !== '—') {
-            try {
-              netEl && (netEl.textContent = 'Wird geladen...');
-              balEl && (balEl.textContent = '...');
-              
-              const res = await fetch(`/api/balance/${address}`);
-              const data = await res.json();
-              
-              if (data && !data.error) {
-                balEl && (balEl.textContent = (data.balance_ton || 0).toFixed(4));
-                netEl && (netEl.textContent = data.network || 'mainnet');
-              } else {
-                netEl && (netEl.textContent = '—');
-                balEl && (balEl.textContent = '—');
-              }
-            } catch (e) {
-              console.error('Error loading balance:', e);
-              netEl && (netEl.textContent = '—');
-              balEl && (balEl.textContent = '—');
-            }
-          }
-        } else {
-          console.log('Wallet disconnected');
-          
-          statusEl && (statusEl.textContent = 'Noch nicht verbunden.');
-          addrEl && (addrEl.textContent = '—');
-          netEl && (netEl.textContent = '—');
-          balEl && (balEl.textContent = '—');
-          btnRefresh && btnRefresh.setAttribute('disabled', 'true');
-        }
-      });
-
-      // Refresh button handler
-      const btnRefresh = document.getElementById('btn-refresh');
-      if (btnRefresh) {
-        btnRefresh.addEventListener('click', async () => {
-          const addr = document.getElementById('addr')?.textContent;
-          const netEl = document.getElementById('net');
-          const balEl = document.getElementById('bal');
-          
-          if (!addr || addr === '—') return;
-          
-          try {
-            netEl && (netEl.textContent = 'Wird geladen...');
-            balEl && (balEl.textContent = '...');
-            
-            const res = await fetch(`/api/balance/${addr}`);
-            const data = await res.json();
-            
-            if (data && !data.error) {
-              balEl && (balEl.textContent = (data.balance_ton || 0).toFixed(4));
-              netEl && (netEl.textContent = data.network || 'mainnet');
-            } else {
-              netEl && (netEl.textContent = '—');
-              balEl && (balEl.textContent = '—');
-            }
-          } catch (e) {
-            console.error('Error refreshing balance:', e);
-            netEl && (netEl.textContent = 'Fehler');
-            balEl && (balEl.textContent = '—');
-          }
-        });
-      }
-      
-      window.__tonConnectUI__ = tonConnectUI;
-      console.log('TonConnect UI ready (without button)');
-      
-      // Створити кастомну кнопку якщо елемент існує
-      const buttonContainer = document.getElementById('tonconnect-ui-button');
-      if (buttonContainer) {
-        buttonContainer.innerHTML = '<button id="custom-connect-btn" class="btn" style="background: #0098EA; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px;">Connect Wallet</button>';
-        
-        document.getElementById('custom-connect-btn').addEventListener('click', async () => {
-          try {
-            await tonConnectUI.openModal();
-          } catch (e) {
-            console.error('Error opening modal:', e);
-          }
-        });
-        
-        console.log('Custom connect button created');
-      }
-      
-    } catch (error) {
-      console.error('Failed to create instance without button:', error);
+      console.error('[TonConnect] ❌ Failed to initialize:', error);
       alert('Fehler beim Initialisieren von TonConnect UI:\n' + error.message);
     }
   }

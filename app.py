@@ -72,25 +72,22 @@ def set_security_headers(resp):
     resp.headers["X-Frame-Options"] = "DENY"
     resp.headers["Referrer-Policy"] = "no-referrer-when-downgrade"
     resp.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
-    # HSTS (увімкни на проді з HTTPS)
     resp.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
-    # CSP: дозволяємо локальні скрипти + unpkg + ton-connect registry + bridge servers для гаманців
+
+    # ВАЖЛИВО: дозволяємо TonConnect UI + bridge (HTTPS і WSS)
     resp.headers["Content-Security-Policy"] = (
         "default-src 'self'; "
-        "img-src 'self' data: https://ton-connect.github.io https://*.tonkeeper.com https://*.tonhub.com https://static.mytonwallet.io; "
+        "img-src 'self' data: https://ton-connect.github.io https://*.tonkeeper.com https://*.tonhub.com https://wallet.tg https://walletbot.me; "
         "style-src 'self' 'unsafe-inline'; "
-        "script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net; "
+        "script-src 'self' https://unpkg.com; "
         "connect-src 'self' "
-        "https://ton-connect.github.io "
-        "https://toncenter.com https://testnet.toncenter.com "
-        "https://bridge.tonapi.io wss://bridge.tonapi.io "
-        "https://tonconnectbridge.mytonwallet.org wss://tonconnectbridge.mytonwallet.org "
-        "https://connect.mytonwallet.org "
-        "https://*.tonkeeper.com wss://*.tonkeeper.com "
-        "https://app.tonkeeper.com "
-        "https://*.wallet.tg wss://*.wallet.tg "
-        "https://*.tonhub.com wss://*.tonhub.com "
-        "https://api.defillama.com;"
+            "https://ton-connect.github.io "
+            "https://toncenter.com https://testnet.toncenter.com "
+            "https://bridge.tonapi.io wss://bridge.tonapi.io "
+            "https://connect.tonhubapi.com wss://connect.tonhubapi.com "
+            "https://*.tonkeeper.com https://*.tonhub.com "
+            "https://wallet.tg https://walletbot.me "
+            "https://api.defillama.com;"
     )
     return resp
 
