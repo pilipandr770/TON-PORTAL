@@ -40,9 +40,30 @@
     try {
       console.log('[TonConnect] ✅ Library found! Creating instance...');
       
+      // Повний URL до маніфесту (важливо для деяких гаманців)
+      const manifestUrl = window.location.origin + '/tonconnect-manifest.json';
+      console.log('[TonConnect] Manifest URL:', manifestUrl);
+      
+      // Перевіримо доступність маніфесту
+      fetch(manifestUrl)
+        .then(r => {
+          console.log('[TonConnect] Manifest response:', r.status, r.statusText);
+          if (!r.ok) {
+            throw new Error('Manifest not accessible: ' + r.status);
+          }
+          return r.json();
+        })
+        .then(manifest => {
+          console.log('[TonConnect] ✅ Manifest loaded:', manifest);
+        })
+        .catch(err => {
+          console.error('[TonConnect] ❌ Manifest error:', err);
+          showReloadButton('Manifest nicht erreichbar');
+        });
+      
       // Ініціалізація UI
       const tonConnectUI = new TonConnectUIClass({
-        manifestUrl: '/tonconnect-manifest.json',
+        manifestUrl: manifestUrl,
         buttonRootId: 'tonconnect-ui-button'
       });
 
@@ -155,12 +176,13 @@
   }
   
   // Показати кнопку перезавантаження замість alert
-  function showReloadButton() {
+  function showReloadButton(message) {
     const container = document.getElementById('tonconnect-ui-button');
     if (container) {
+      const errorMsg = message || 'TonConnect UI nicht geladen';
       container.innerHTML = `
         <div style="text-align: center; padding: 20px; background: #ff4444; color: white; border-radius: 8px;">
-          <p style="margin-bottom: 10px;">❌ TonConnect UI nicht geladen</p>
+          <p style="margin-bottom: 10px;">❌ ${errorMsg}</p>
           <button onclick="location.reload()" 
                   style="background: white; color: #ff4444; border: none; padding: 10px 20px; 
                          border-radius: 6px; cursor: pointer; font-weight: bold;">

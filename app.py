@@ -169,7 +169,14 @@ def version():
 # ---- TonConnect manifest (локальний) ----
 @app.route("/tonconnect-manifest.json")
 def tc_manifest():
-    return send_from_directory("static", "tonconnect-manifest.json", mimetype="application/json")
+    response = send_from_directory("static", "tonconnect-manifest.json", mimetype="application/json")
+    # CORS заголовки для TonConnect
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    # Кешування
+    response.headers["Cache-Control"] = "public, max-age=3600"
+    return response
 
 # ---- API: balance (limited + cached) ----
 @limiter.limit("10 per minute")
