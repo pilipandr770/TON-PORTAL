@@ -1,6 +1,24 @@
 // Minimal TonConnect UI initialization
 console.log('TonConnect init started');
 
+// Перевірка маніфесту на відповідність домену
+fetch('/tonconnect-manifest.json')
+  .then(r => r.json())
+  .then(man => {
+    try {
+      const u = new URL(man.url);
+      if (u.origin !== location.origin) {
+        console.warn('[TonConnect] Manifest origin mismatch:', u.origin, 'vs', location.origin);
+        alert('⚠️ Увага: tonconnect-manifest.json має інший домен. Виправте поле "url"!');
+      } else {
+        console.log('✅ Manifest origin OK:', man.url);
+      }
+    } catch (e) {
+      console.error('[TonConnect] Manifest URL parse error:', e);
+    }
+  })
+  .catch(e => console.error('[TonConnect] Failed to load manifest:', e));
+
 function waitForLibrary(attempt = 0) {
   console.log('Check attempt:', attempt);
   

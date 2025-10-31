@@ -36,11 +36,11 @@
   <small>© {{ 2025 }} TON Staking Portal — Software-Dienstleistung (keine Verwahrung, keine Finanzberatung).</small>
 </footer>
 
-<!-- TonConnect UI (CDN) -->
-<script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js" 
-        crossorigin="anonymous" defer></script>
+<!-- TonConnect (локально) -->
+<script src="{{ url_for('static', filename='js/vendor/tonconnect-sdk.min.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/vendor/tonconnect-ui.min.js') }}" defer></script>
 
-<!-- Unsere Skripte -->
+<!-- Наші ініціалізації -->
 <script src="{{ url_for('static', filename='js/tonconnect.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/tonconnect-ui-init-simple.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/send-delegate.js') }}" defer></script>
