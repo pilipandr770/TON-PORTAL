@@ -4,22 +4,37 @@
 (function () {
   console.log('Initializing TonConnect UI...');
   
-  // Перевіряємо наявність бібліотеки UI
-  if (typeof TonConnectUI === 'undefined') {
-    console.error('TonConnect UI library not loaded!');
-    alert("TonConnect UI Bibliothek konnte nicht geladen werden.\nBitte laden Sie die Seite neu (F5).");
-    return;
-  }
+  // Функція ініціалізації з повторними спробами
+  function initTonConnectUI(attempt = 0) {
+    const maxAttempts = 10;
+    
+    // Перевіряємо наявність бібліотеки UI в різних можливих місцях
+    const TonConnectUIClass = window.TonConnectUI || window.TON_CONNECT_UI?.TonConnectUI;
+    
+    if (!TonConnectUIClass) {
+      if (attempt < maxAttempts) {
+        console.log(`Waiting for TonConnect UI library... (attempt ${attempt + 1}/${maxAttempts})`);
+        setTimeout(() => initTonConnectUI(attempt + 1), 200);
+        return;
+      } else {
+        console.error('TonConnect UI library not loaded after', maxAttempts, 'attempts!');
+        console.error('Available globals:', Object.keys(window).filter(k => k.toLowerCase().includes('ton')));
+        alert("TonConnect UI Bibliothek konnte nicht geladen werden.\nBitte laden Sie die Seite neu (F5).");
+        return;
+      }
+    }
 
-  try {
-    // Створюємо UI-екземпляр і "вмонтовуємо" кнопку в елемент з id=tonconnect-ui-button
-    const tonConnectUI = new TonConnectUI({
-      manifestUrl: window.location.origin + '/tonconnect-manifest.json',
-      buttonRootId: 'tonconnect-ui-button',
-      // опційно: theme: 'DARK' | 'LIGHT' | 'SYSTEM'
-    });
+    try {
+      console.log('TonConnect UI library found, creating instance...');
+      
+      // Створюємо UI-екземпляр і "вмонтовуємо" кнопку в елемент з id=tonconnect-ui-button
+      const tonConnectUI = new TonConnectUIClass({
+        manifestUrl: window.location.origin + '/tonconnect-manifest.json',
+        buttonRootId: 'tonconnect-ui-button',
+        // опційно: theme: 'DARK' | 'LIGHT' | 'SYSTEM'
+      });
 
-    console.log('TonConnect UI instance created successfully');
+      console.log('TonConnect UI instance created successfully');
 
     // Коли статус з'єднання змінюється — оновлюємо інтерфейс
     tonConnectUI.onStatusChange(async (walletInfo) => {
@@ -108,12 +123,16 @@
       });
     }
 
-    // Експортуємо екземпляр, щоб TonUI.sendStake могла ним користуватись
-    window.__tonConnectUI__ = tonConnectUI;
-    console.log('TonConnect UI initialization complete');
-    
-  } catch (error) {
-    console.error('Failed to initialize TonConnect UI:', error);
-    alert('Fehler beim Initialisieren von TonConnect UI:\n' + error.message);
+      // Експортуємо екземпляр, щоб TonUI.sendStake могла ним користуватись
+      window.__tonConnectUI__ = tonConnectUI;
+      console.log('TonConnect UI initialization complete');
+      
+    } catch (error) {
+      console.error('Failed to initialize TonConnect UI:', error);
+      alert('Fehler beim Initialisieren von TonConnect UI:\n' + error.message);
+    }
   }
+  
+  // Запустити ініціалізацію
+  initTonConnectUI();
 })();

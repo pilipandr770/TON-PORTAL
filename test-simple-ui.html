@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TonConnect UI Test - Simple</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+        .log { background: #f5f5f5; padding: 20px; margin: 20px 0; font-family: monospace; white-space: pre-wrap; max-height: 400px; overflow-y: auto; }
+        button { padding: 10px 20px; font-size: 16px; margin: 10px 5px; cursor: pointer; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>🧪 TonConnect UI Library Test</h1>
+    
+    <div id="status">⏳ Loading...</div>
+    
+    <div id="tonconnect-button-container"></div>
+    
+    <button onclick="checkGlobals()">Check Global Variables</button>
+    <button onclick="testConnection()">Test Connection</button>
+    
+    <h3>Log:</h3>
+    <div id="log" class="log"></div>
+
+    <script>
+        const logEl = document.getElementById('log');
+        const statusEl = document.getElementById('status');
+        
+        function log(msg, isError = false) {
+            const timestamp = new Date().toLocaleTimeString();
+            const className = isError ? 'error' : '';
+            logEl.innerHTML += `<span class="${className}">[${timestamp}] ${msg}</span>\n`;
+            console.log(msg);
+        }
+        
+        function checkGlobals() {
+            log('=== Checking Global Variables ===');
+            log('window.TonConnectUI: ' + typeof window.TonConnectUI);
+            log('window.TON_CONNECT_UI: ' + typeof window.TON_CONNECT_UI);
+            
+            const tonGlobals = Object.keys(window).filter(k => k.toLowerCase().includes('ton'));
+            log('Available TON-related globals: ' + (tonGlobals.length > 0 ? tonGlobals.join(', ') : 'none'));
+            
+            if (typeof TonConnectUI !== 'undefined') {
+                log('✅ TonConnectUI class is available', false);
+                log('TonConnectUI properties: ' + Object.getOwnPropertyNames(TonConnectUI).join(', '));
+            } else {
+                log('❌ TonConnectUI class NOT available', true);
+            }
+        }
+        
+        async function testConnection() {
+            log('=== Testing Connection ===');
+            
+            if (typeof TonConnectUI === 'undefined') {
+                log('❌ TonConnectUI not available!', true);
+                alert('TonConnectUI is not loaded! Check console.');
+                return;
+            }
+            
+            try {
+                log('Creating TonConnectUI instance...');
+                const ui = new TonConnectUI({
+                    manifestUrl: 'https://ton-portal.onrender.com/tonconnect-manifest.json',
+                    buttonRootId: 'tonconnect-button-container'
+                });
+                
+                log('✅ Instance created successfully');
+                log('Opening modal...');
+                
+                await ui.openModal();
+                log('✅ Modal opened!');
+                
+            } catch (error) {
+                log('❌ Error: ' + error.message, true);
+                log('Stack: ' + error.stack, true);
+            }
+        }
+        
+        // Load TonConnect UI from CDN
+        log('Loading TonConnect UI from CDN...');
+        
+        const cdnUrls = [
+            'https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js',
+            'https://cdn.jsdelivr.net/npm/@tonconnect/ui@latest/dist/tonconnect-ui.min.js'
+        ];
+        
+        function loadScript(url, callback) {
+            log('Trying: ' + url);
+            const script = document.createElement('script');
+            script.src = url;
+            script.crossOrigin = 'anonymous';
+            
+            script.onload = () => {
+                log('✅ Loaded: ' + url);
+                
+                // Check what was loaded
+                setTimeout(() => {
+                    checkGlobals();
+                    callback(null);
+                }, 100);
+            };
+            
+            script.onerror = () => {
+                log('❌ Failed: ' + url, true);
+                callback(new Error('Failed'));
+            };
+            
+            document.head.appendChild(script);
+        }
+        
+        function tryLoadCdn(index) {
+            if (index >= cdnUrls.length) {
+                log('❌ All CDN sources failed!', true);
+                statusEl.innerHTML = '<span class="error">❌ Failed to load TonConnect UI</span>';
+                return;
+            }
+            
+            loadScript(cdnUrls[index], (error) => {
+                if (error) {
+                    log('Trying next CDN...');
+                    tryLoadCdn(index + 1);
+                } else {
+                    statusEl.innerHTML = '<span class="success">✅ TonConnect UI loaded successfully!</span>';
+                    log('=== Ready for testing ===');
+                }
+            });
+        }
+        
+        tryLoadCdn(0);
+    </script>
+</body>
+</html>

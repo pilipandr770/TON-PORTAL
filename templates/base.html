@@ -52,6 +52,14 @@
       script.crossOrigin = 'anonymous';
       script.onload = () => {
         console.log('✅ TonConnect UI loaded from:', url);
+        // Перевірка що саме завантажилось
+        setTimeout(() => {
+          console.log('Checking global scope:', {
+            TonConnectUI: typeof window.TonConnectUI,
+            TON_CONNECT_UI: typeof window.TON_CONNECT_UI,
+            availableTonGlobals: Object.keys(window).filter(k => k.toLowerCase().includes('ton'))
+          });
+        }, 50);
         callback(null);
       };
       script.onerror = () => {
