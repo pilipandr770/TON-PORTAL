@@ -1,0 +1,91 @@
+<!-- file: templates/dashboard-direct.html -->
+{% extends "base.html" %}
+{% block content %}
+<h1>Dashboard (Direct Connection Mode)</h1>
+
+<div class="card" style="background: #2a1a1a; border: 2px solid #f90;">
+  <h3>⚠️ WebSocket Bridge Недоступний</h3>
+  <p>TON Bridge сервери недоступні з вашої мережі. Використовуйте <strong>прямі посилання</strong> для підключення гаманця:</p>
+</div>
+
+<div class="card">
+  <h3>Підключення гаманця (Direct Links)</h3>
+  
+  <p>Виберіть ваш гаманець для підключення:</p>
+  
+  <div style="display: grid; gap: 12px; margin-top: 20px;">
+    <a href="https://app.tonkeeper.com/ton-connect?v=2&id={{ app_id }}&r={{ return_url }}" 
+       class="btn btn-primary" 
+       style="display: flex; align-items: center; justify-content: center; padding: 16px;">
+      <span style="font-size: 1.2em;">📱 Tonkeeper</span>
+    </a>
+    
+    <a href="https://tonhub.com/ton-connect?v=2&id={{ app_id }}&r={{ return_url }}" 
+       class="btn btn-primary"
+       style="display: flex; align-items: center; justify-content: center; padding: 16px;">
+      <span style="font-size: 1.2em;">🏦 Tonhub</span>
+    </a>
+    
+    <a href="https://t.me/wallet?attach=wallet&startattach=tonconnect_v2_{{ app_id }}_{{ return_url }}" 
+       class="btn btn-primary"
+       style="display: flex; align-items: center; justify-content: center; padding: 16px;">
+      <span style="font-size: 1.2em;">✈️ Telegram Wallet</span>
+    </a>
+  </div>
+  
+  <p style="margin-top: 20px; color: #888; font-size: 0.9em;">
+    💡 Після натискання відкриється додаток гаманця. Підтвердіть підключення там.
+  </p>
+  
+  <div id="tonconnect-ui-button" style="margin-top: 20px;"></div>
+  
+  <p id="wallet-status" style="margin-top:10px">Ще не підключено.</p>
+</div>
+
+<div class="card">
+  <h3>Balance</h3>
+  <p><strong>Адреса:</strong> <span id="addr">—</span></p>
+  <p><strong>Мережа:</strong> <span id="net">—</span></p>
+  <p><strong>Баланс:</strong> <span id="bal">—</span> TON</p>
+  <button id="btn-refresh" class="btn btn-secondary" disabled>Оновити</button>
+</div>
+
+<div class="card">
+  <h3>Stake in Pool</h3>
+  <p>Оберіть пул з каталогу і введіть суму в TON. 
+     Делегація підписується виключно у вашому гаманці (ми не зберігаємо кошти).</p>
+
+  <div class="stake-form">
+    <div class="form-group">
+      <label for="pool-select"><strong>Pool</strong></label>
+      <select id="pool-select" name="pool">
+        <!-- Завантажується динамічно -->
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="amount"><strong>Сума (TON)</strong></label>
+      <input type="number" id="amount" name="amount" min="1" step="0.01" placeholder="наприклад: 100">
+    </div>
+
+    <button id="btn-stake" class="btn btn-primary" disabled>Stake TON</button>
+  </div>
+</div>
+
+<script>
+// Завантаження пулів для селекту
+fetch('/api/pools')
+  .then(r => r.json())
+  .then(data => {
+    const sel = document.getElementById('pool-select');
+    if (data.items && data.items.length > 0) {
+      data.items.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.address;
+        opt.textContent = `${p.name} (${(p.fee * 100).toFixed(1)}% fee)`;
+        sel.appendChild(opt);
+      });
+    }
+  });
+</script>
+{% endblock %}

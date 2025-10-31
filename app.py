@@ -75,35 +75,27 @@ def set_security_headers(resp):
     resp.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
 
     # КРИТИЧНО: дозволяємо TonConnect bridge для отримання відповіді від гаманця
-    resp.headers["Content-Security-Policy"] = (
+    # CSP з підтримкою всіх WebSocket для TonConnect (без wildcard - не всі браузери підтримують)
+    csp_policy = (
         "default-src 'self'; "
         "img-src 'self' data: https: blob:; "
         "style-src 'self' 'unsafe-inline'; "
-        "script-src 'self' https://unpkg.com https://cdn.jsdelivr.net; "
-        "connect-src 'self' "
-            # TonConnect registry
-            "https://ton-connect.github.io "
-            # Toncenter API
-            "https://toncenter.com https://testnet.toncenter.com "
-            # Bridge servers (HTTPS + WSS для двостороннього зв'язку)
-            "https://bridge.tonapi.io wss://bridge.tonapi.io "
-            "https://*.tonapi.io wss://*.tonapi.io "
-            "https://connect.tonhubapi.com wss://connect.tonhubapi.com "
-            "https://*.tonhub.com wss://*.tonhub.com "
-            "https://*.tonkeeper.com wss://*.tonkeeper.com "
-            "https://tonconnectbridge.mytonwallet.org wss://tonconnectbridge.mytonwallet.org "
-            "https://*.wallet.tg wss://*.wallet.tg "
-            "https://wallet.tg wss://wallet.tg "
-            # Analytics
-            "https://api.defillama.com "
-            # Wildcard для всіх можливих WebSocket
-            "wss://*;"
+        "script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net; "
+        "connect-src 'self' https: wss: data: blob:; "
+        "frame-ancestors 'none'; "
+        "base-uri 'self';"
     )
+    resp.headers["Content-Security-Policy"] = csp_policy
     return resp
 
 @app.route("/")
 def index():
     return render_template("index.html", title="TON Staking Portal")
+
+@app.route("/test-csp")
+def test_csp():
+    with open('test_csp.html', 'r', encoding='utf-8') as f:
+        return f.read()
 
 @app.route("/how")
 def how():
@@ -116,6 +108,16 @@ def faq():
 @app.route("/dashboard")
 def dashboard():
     return render_template("dashboard.html", title="Dashboard")
+
+@app.route("/dashboard-direct")
+def dashboard_direct():
+    """Dashboard з прямими посиланнями (без WebSocket bridge)"""
+    app_id = "ton-staking-portal"
+    return_url = request.url_root
+    return render_template("dashboard-direct.html", 
+                          title="Dashboard (Direct Mode)",
+                          app_id=app_id,
+                          return_url=return_url)
 
 @app.route("/test-tonconnect")
 def test_tonconnect():

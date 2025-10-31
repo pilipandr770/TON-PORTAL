@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CSP Test</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #fff; }
+        .log { margin: 5px 0; padding: 8px; background: #2a2a2a; border-left: 3px solid #666; }
+        .success { border-color: #0f0; color: #0f0; }
+        .error { border-color: #f00; color: #f00; }
+        .info { border-color: #0af; color: #0af; }
+        h1 { color: #0af; }
+        #csp-header { background: #333; padding: 10px; margin: 10px 0; word-break: break-all; }
+    </style>
+</head>
+<body>
+    <h1>🔍 CSP WebSocket Diagnostic</h1>
+    <div id="logs"></div>
+    
+    <script>
+        const logs = document.getElementById('logs');
+        
+        function addLog(msg, type = 'info') {
+            const div = document.createElement('div');
+            div.className = 'log ' + type;
+            div.textContent = new Date().toLocaleTimeString() + ' - ' + msg;
+            logs.appendChild(div);
+        }
+        
+        // 1. Check CSP header
+        addLog('📋 Step 1: Fetching CSP header from server...', 'info');
+        fetch('/test-csp', {method: 'HEAD'})
+            .then(response => {
+                const csp = response.headers.get('Content-Security-Policy');
+                addLog('📄 CSP Header: ' + (csp || 'NOT FOUND'), csp ? 'info' : 'error');
+                
+                if (csp) {
+                    const cspDiv = document.createElement('div');
+                    cspDiv.id = 'csp-header';
+                    cspDiv.innerHTML = '<strong>Full CSP:</strong><br>' + csp;
+                    logs.appendChild(cspDiv);
+                    
+                    // Check for wss in CSP
+                    if (csp.includes('wss:')) {
+                        addLog('✅ CSP contains "wss:" - WebSocket should work', 'success');
+                    } else if (csp.includes('wss://')) {
+                        addLog('⚠️ CSP contains specific wss:// domains but no general wss:', 'error');
+                    } else {
+                        addLog('❌ CSP does NOT contain WebSocket permissions!', 'error');
+                    }
+                }
+            })
+            .catch(e => addLog('❌ Error fetching CSP: ' + e.message, 'error'));
+        
+        // 2. Test WebSocket connection
+        addLog('🔌 Step 2: Testing WebSocket connection to bridge.tonapi.io...', 'info');
+        
+        try {
+            const ws = new WebSocket('wss://bridge.tonapi.io/bridge');
+            
+            addLog('⏳ WebSocket created, waiting for connection...', 'info');
+            
+            let timeout = setTimeout(() => {
+                addLog('⏱️ Timeout after 5 seconds - connection did not open', 'error');
+                ws.close();
+            }, 5000);
+            
+            ws.onopen = () => {
+                clearTimeout(timeout);
+                addLog('✅✅✅ SUCCESS! WebSocket connected!', 'success');
+                addLog('ReadyState: ' + ws.readyState, 'success');
+                ws.close();
+            };
+            
+            ws.onclose = (event) => {
+                addLog('🔒 WebSocket closed. Code: ' + event.code + ', Reason: ' + event.reason, 'info');
+            };
+            
+            ws.onerror = (error) => {
+                clearTimeout(timeout);
+                addLog('❌❌❌ WebSocket ERROR!', 'error');
+                addLog('Error object: ' + JSON.stringify(error), 'error');
+                addLog('This usually means CSP is blocking the connection', 'error');
+            };
+            
+        } catch (e) {
+            addLog('💥 EXCEPTION creating WebSocket: ' + e.message, 'error');
+            addLog('Stack: ' + e.stack, 'error');
+        }
+        
+        // 3. Test public echo server (to check if WebSocket works at all)
+        setTimeout(() => {
+            addLog('🔌 Step 3: Testing PUBLIC WebSocket echo server (wss://echo.websocket.org)...', 'info');
+            try {
+                const ws2 = new WebSocket('wss://echo.websocket.org/');
+                
+                let timeout2 = setTimeout(() => {
+                    addLog('⏱️ Echo server timeout', 'error');
+                    ws2.close();
+                }, 5000);
+                
+                ws2.onopen = () => {
+                    clearTimeout(timeout2);
+                    addLog('✅✅✅ PUBLIC WebSocket WORKS! Problem is with TON bridge servers!', 'success');
+                    addLog('This means: CSP is OK, your network allows WSS, but TON bridges are unreachable', 'info');
+                    ws2.send('test');
+                };
+                
+                ws2.onmessage = (event) => {
+                    addLog('📨 Echo received: ' + event.data, 'success');
+                    ws2.close();
+                };
+                
+                ws2.onerror = () => {
+                    clearTimeout(timeout2);
+                    addLog('❌ PUBLIC WebSocket FAILED! Your network/firewall blocks ALL WebSockets!', 'error');
+                };
+            } catch (e) {
+                addLog('💥 Exception on public echo: ' + e.message, 'error');
+            }
+        }, 6000);
+    </script>
+</body>
+</html>
