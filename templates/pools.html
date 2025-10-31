@@ -13,11 +13,15 @@
 
 <script>
   async function loadPools() {
+    console.log('🔄 Loading pools...');
     const el = document.getElementById('pools-container');
     el.innerHTML = '<p>⏳ Завантаження пулів...</p>';
     try {
+      console.log('📡 Fetching /api/pools...');
       const res = await fetch('/api/pools');
+      console.log('📥 Response status:', res.status);
       const data = await res.json();
+      console.log('✅ Data received:', data);
       if (data.items && Array.isArray(data.items)) {
         console.log('Loaded pools:', data.items.length);
         el.innerHTML = data.items.map(p => {
