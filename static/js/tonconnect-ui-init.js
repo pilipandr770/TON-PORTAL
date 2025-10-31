@@ -61,9 +61,17 @@
       });
 
       console.log('TonConnect UI instance created successfully with button');
+      
+      // Додаткове логування для діагностики
+      tonConnectUI.connectionRestored.then(restored => {
+        console.log('Connection restored:', restored);
+      });
 
     // Коли статус з'єднання змінюється — оновлюємо інтерфейс
     tonConnectUI.onStatusChange(async (walletInfo) => {
+      console.log('=== onStatusChange triggered ===');
+      console.log('walletInfo:', walletInfo);
+      
       const statusEl = document.getElementById('wallet-status');
       const addrEl = document.getElementById('addr');
       const btnRefresh = document.getElementById('btn-refresh');
@@ -76,7 +84,9 @@
         const account = walletInfo.account;
         const address = account?.address || '—';
         
-        console.log('Wallet connected:', address);
+        console.log('✅ Wallet connected successfully!');
+        console.log('Address:', address);
+        console.log('Account details:', account);
         
         statusEl && (statusEl.textContent = 'Verbunden.');
         addrEl && (addrEl.textContent = address);
