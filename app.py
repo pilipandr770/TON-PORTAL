@@ -111,6 +111,82 @@ def dashboard():
 def test_tonconnect():
     return render_template("test-tonconnect.html", title="TonConnect Test")
 
+@app.route("/test-simple")
+def test_simple():
+    """Простой тест без шаблонов - чтобы проверить работу роута"""
+    html = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Simple Test</title>
+        <style>
+            body { 
+                font-family: Arial; 
+                background: #0f1520; 
+                color: white; 
+                padding: 50px; 
+                max-width: 800px; 
+                margin: 0 auto; 
+            }
+            .status { 
+                background: #1a2332; 
+                padding: 20px; 
+                border-radius: 10px; 
+                margin: 20px 0; 
+            }
+            .ok { color: #0f0; }
+            .error { color: #f00; }
+        </style>
+    </head>
+    <body>
+        <h1>🚀 TON Portal - Simple Test</h1>
+        
+        <div class="status">
+            <h2>✅ Backend Working!</h2>
+            <p>This page loaded from Flask successfully.</p>
+            <p><strong>Route:</strong> /test-simple</p>
+            <p><strong>Server:</strong> Render.com</p>
+        </div>
+        
+        <div class="status">
+            <h3>Environment Check:</h3>
+            <p>✅ Flask app running</p>
+            <p>✅ HTML rendering working</p>
+            <p>✅ Routes working</p>
+        </div>
+        
+        <div class="status">
+            <h3>Test Links:</h3>
+            <p><a href="/" style="color: #0af;">← Home</a></p>
+            <p><a href="/dashboard" style="color: #0af;">Dashboard</a></p>
+            <p><a href="/test-tonconnect" style="color: #0af;">TonConnect Test</a></p>
+            <p><a href="/tonconnect-manifest.json" style="color: #0af;">Manifest JSON</a></p>
+        </div>
+        
+        <div class="status">
+            <h3>🔍 TonConnect Library Test:</h3>
+            <div id="lib-status" style="margin-top: 10px;">⏳ Loading...</div>
+        </div>
+        
+        <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+        <script>
+            setTimeout(() => {
+                const status = document.getElementById('lib-status');
+                if (window.TON_CONNECT_UI) {
+                    status.innerHTML = '<span class="ok">✅ TonConnect UI library loaded!</span>';
+                } else if (window.TonConnectUI) {
+                    status.innerHTML = '<span class="ok">✅ TonConnectUI (old) loaded!</span>';
+                } else {
+                    status.innerHTML = '<span class="error">❌ Library not loaded (CDN blocked?)</span>';
+                }
+            }, 3000);
+        </script>
+    </body>
+    </html>
+    """
+    return html
+
 @app.route("/pools")
 def pools_page():
     return render_template("pools.html", title="TON Pools")
