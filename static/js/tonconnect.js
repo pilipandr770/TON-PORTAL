@@ -28,21 +28,23 @@ window.TonUI = (function () {
 
   // Ініціалізація TonConnect UI
   function initTonConnect() {
-    if (tonConnectUI) return; // Вже ініціалізовано
+    if (tonConnectUI) return true; // Вже ініціалізовано
     
     try {
       // Перевірка наявності TonConnect UI у глобальній області
       if (typeof TonConnectUI === 'undefined') {
-        console.error('TonConnect UI not loaded');
-        setStatus('Fehler: TonConnect UI nicht geladen.');
-        return;
+        return false; // CDN ще не завантажився
       }
+
+      console.log('TonConnectUI library loaded, creating instance...');
 
       // Створити екземпляр TonConnectUI
       tonConnectUI = new TonConnectUI({
         manifestUrl: window.location.origin + '/tonconnect-manifest.json',
         buttonRootId: null // Не використовуємо вбудовану кнопку
       });
+      
+      console.log('TonConnectUI instance created successfully');
 
       // Підписка на зміни статусу підключення
       tonConnectUI.onStatusChange(wallet => {
@@ -69,33 +71,45 @@ window.TonUI = (function () {
       });
 
       setStatus('Bereit zum Verbinden.');
+      return true;
     } catch (e) {
-      console.error('TonConnect error:', e);
-      setStatus('Fehler: ' + e.message);
+      console.error('TonConnect initialization error:', e);
+      setStatus('Fehler beim Initialisieren');
+      return false;
     }
   }
 
   async function connect() {
     try {
       if (!tonConnectUI) {
-        // Спробувати ініціалізувати
-        initTonConnect();
+        setStatus('TonConnect wird geladen...');
         
-        // Якщо не вдалось - можливо CDN ще завантажується
-        if (!tonConnectUI && typeof TonConnectUI === 'undefined') {
-          setStatus('TonConnect wird geladen...');
-          
-          // Зачекати 2 секунди і спробувати знову
-          await new Promise(resolve => setTimeout(resolve, 2000));
+        // Спробувати до 5 разів з інтервалом 1 секунда
+        for (let attempt = 0; attempt < 5; attempt++) {
           initTonConnect();
           
-          if (!tonConnectUI) {
-            alert('TonConnect UI konnte nicht geladen werden.\n\nBitte:\n1. Prüfen Sie Ihre Internetverbindung\n2. Laden Sie die Seite neu (F5)');
-            return;
+          if (tonConnectUI) {
+            break; // Успішно ініціалізовано
           }
-        } else if (!tonConnectUI) {
-          // TonConnectUI є, але не вдалось створити інстанс
-          alert('Fehler beim Initialisieren von TonConnect.\nBitte laden Sie die Seite neu.');
+          
+          if (typeof TonConnectUI === 'undefined') {
+            // CDN ще не завантажився, чекаємо
+            console.log(`Waiting for TonConnect UI... (attempt ${attempt + 1}/5)`);
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          } else {
+            // TonConnectUI доступний але не вдалось створити інстанс
+            console.error('TonConnectUI available but failed to initialize');
+            break;
+          }
+        }
+        
+        if (!tonConnectUI) {
+          const msg = typeof TonConnectUI === 'undefined' 
+            ? 'TonConnect UI Bibliothek konnte nicht geladen werden.\n\nMögliche Ursachen:\n• Langsame Internetverbindung\n• CDN nicht erreichbar\n\nBitte laden Sie die Seite neu (F5)'
+            : 'Fehler beim Initialisieren von TonConnect.\n\nBitte laden Sie die Seite neu (F5)';
+          
+          setStatus('Fehler beim Laden');
+          alert(msg);
           return;
         }
       }
@@ -105,8 +119,8 @@ window.TonUI = (function () {
       
     } catch (e) {
       console.error('TonConnect error:', e);
-      setStatus('Verbindung fehlgeschlagen: ' + e.message);
-      alert('Verbindungsfehler: ' + e.message);
+      setStatus('Verbindung fehlgeschlagen');
+      alert('Verbindungsfehler:\n' + e.message + '\n\nBitte laden Sie die Seite neu.');
     }
   }
 

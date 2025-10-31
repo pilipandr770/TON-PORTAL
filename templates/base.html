@@ -37,8 +37,41 @@
   <small>© {{ 2025 }} TON Staking Portal — Software-Dienstleistung (keine Verwahrung, keine Finanzberatung).</small>
 </footer>
 
-<!-- TonConnect UI (CDN) - для QR-кодів і модального вікна -->
-<script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js" crossorigin="anonymous" onerror="this.onerror=null; this.src='https://cdn.jsdelivr.net/npm/@tonconnect/ui@latest/dist/tonconnect-ui.min.js';"></script>
+<!-- TonConnect UI (CDN) - з автоматичним fallback -->
+<script>
+  // Завантажуємо TonConnect UI з fallback
+  (function() {
+    const cdnUrls = [
+      'https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js',
+      'https://cdn.jsdelivr.net/npm/@tonconnect/ui@latest/dist/tonconnect-ui.min.js'
+    ];
+    
+    function loadScript(url, callback) {
+      const script = document.createElement('script');
+      script.src = url;
+      script.crossOrigin = 'anonymous';
+      script.onload = () => callback(null);
+      script.onerror = () => callback(new Error('Failed to load ' + url));
+      document.head.appendChild(script);
+    }
+    
+    function tryLoadCdn(index) {
+      if (index >= cdnUrls.length) {
+        console.error('All CDN sources failed to load TonConnect UI');
+        return;
+      }
+      
+      loadScript(cdnUrls[index], (error) => {
+        if (error) {
+          console.warn('Failed to load from ' + cdnUrls[index] + ', trying next...');
+          tryLoadCdn(index + 1);
+        }
+      });
+    }
+    
+    tryLoadCdn(0);
+  })();
+</script>
 <script src="{{ url_for('static', filename='js/tonconnect.js') }}" defer></script>
 
 <!-- Cookie consent (простий локальний банер без трекерів) -->
