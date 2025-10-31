@@ -22,15 +22,25 @@ function initUI() {
   const TonConnectUI = window.TON_CONNECT_UI?.TonConnectUI || window.TonConnectUI;
   
   try {
+    console.log('Creating TonConnect UI with manifest:', window.location.origin + '/tonconnect-manifest.json');
+    
     const ui = new TonConnectUI({
       manifestUrl: window.location.origin + '/tonconnect-manifest.json',
       buttonRootId: 'tonconnect-ui-button'
     });
     
     console.log('✅ TonConnect UI created');
+    console.log('Initial connected state:', ui.connected);
+    console.log('Initial wallet:', ui.wallet);
+    
+    // Перевірка з'єднання кожні 5 секунд
+    setInterval(() => {
+      console.log('Connection check - Connected:', ui.connected, 'Wallet:', ui.wallet ? 'Yes' : 'No');
+    }, 5000);
     
     ui.onStatusChange((wallet) => {
-      console.log('📱 Wallet status changed:', wallet);
+      console.log('�🔔🔔 WALLET STATUS CHANGED 🔔🔔🔔');
+      console.log('Full wallet object:', JSON.stringify(wallet, null, 2));
       
       if (wallet && wallet.account) {
         const addr = wallet.account.address;

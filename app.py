@@ -74,20 +74,30 @@ def set_security_headers(resp):
     resp.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
     resp.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
 
-    # ВАЖЛИВО: дозволяємо TonConnect UI + bridge (HTTPS і WSS)
+    # КРИТИЧНО: дозволяємо TonConnect bridge для отримання відповіді від гаманця
     resp.headers["Content-Security-Policy"] = (
         "default-src 'self'; "
-        "img-src 'self' data: https://ton-connect.github.io https://*.tonkeeper.com https://*.tonhub.com https://wallet.tg https://walletbot.me; "
+        "img-src 'self' data: https: blob:; "
         "style-src 'self' 'unsafe-inline'; "
-        "script-src 'self' https://unpkg.com; "
+        "script-src 'self' https://unpkg.com https://cdn.jsdelivr.net; "
         "connect-src 'self' "
+            # TonConnect registry
             "https://ton-connect.github.io "
+            # Toncenter API
             "https://toncenter.com https://testnet.toncenter.com "
+            # Bridge servers (HTTPS + WSS для двостороннього зв'язку)
             "https://bridge.tonapi.io wss://bridge.tonapi.io "
+            "https://*.tonapi.io wss://*.tonapi.io "
             "https://connect.tonhubapi.com wss://connect.tonhubapi.com "
-            "https://*.tonkeeper.com https://*.tonhub.com "
-            "https://wallet.tg https://walletbot.me "
-            "https://api.defillama.com;"
+            "https://*.tonhub.com wss://*.tonhub.com "
+            "https://*.tonkeeper.com wss://*.tonkeeper.com "
+            "https://tonconnectbridge.mytonwallet.org wss://tonconnectbridge.mytonwallet.org "
+            "https://*.wallet.tg wss://*.wallet.tg "
+            "https://wallet.tg wss://wallet.tg "
+            # Analytics
+            "https://api.defillama.com "
+            # Wildcard для всіх можливих WebSocket
+            "wss://*;"
     )
     return resp
 
