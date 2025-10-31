@@ -41,21 +41,34 @@
             log('window.TonConnectUI: ' + typeof window.TonConnectUI);
             log('window.TON_CONNECT_UI: ' + typeof window.TON_CONNECT_UI);
             
+            if (window.TON_CONNECT_UI) {
+                log('TON_CONNECT_UI properties: ' + Object.keys(window.TON_CONNECT_UI).join(', '));
+            }
+            
             const tonGlobals = Object.keys(window).filter(k => k.toLowerCase().includes('ton'));
             log('Available TON-related globals: ' + (tonGlobals.length > 0 ? tonGlobals.join(', ') : 'none'));
             
-            if (typeof TonConnectUI !== 'undefined') {
-                log('✅ TonConnectUI class is available', false);
-                log('TonConnectUI properties: ' + Object.getOwnPropertyNames(TonConnectUI).join(', '));
+            // Перевірка обох варіантів
+            let TonConnectUIClass = null;
+            if (typeof window.TonConnectUI !== 'undefined') {
+                TonConnectUIClass = window.TonConnectUI;
+                log('✅ TonConnectUI found at window.TonConnectUI', false);
+            } else if (typeof window.TON_CONNECT_UI !== 'undefined' && window.TON_CONNECT_UI.TonConnectUI) {
+                TonConnectUIClass = window.TON_CONNECT_UI.TonConnectUI;
+                log('✅ TonConnectUI found at window.TON_CONNECT_UI.TonConnectUI', false);
             } else {
-                log('❌ TonConnectUI class NOT available', true);
+                log('❌ TonConnectUI class NOT available in any location', true);
             }
+            
+            return TonConnectUIClass;
         }
         
         async function testConnection() {
             log('=== Testing Connection ===');
             
-            if (typeof TonConnectUI === 'undefined') {
+            const TonConnectUIClass = checkGlobals();
+            
+            if (!TonConnectUIClass) {
                 log('❌ TonConnectUI not available!', true);
                 alert('TonConnectUI is not loaded! Check console.');
                 return;
@@ -63,7 +76,7 @@
             
             try {
                 log('Creating TonConnectUI instance...');
-                const ui = new TonConnectUI({
+                const ui = new TonConnectUIClass({
                     manifestUrl: 'https://ton-portal.onrender.com/tonconnect-manifest.json',
                     buttonRootId: 'tonconnect-button-container'
                 });

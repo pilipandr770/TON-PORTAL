@@ -9,7 +9,18 @@
     const maxAttempts = 10;
     
     // Перевіряємо наявність бібліотеки UI в різних можливих місцях
-    const TonConnectUIClass = window.TonConnectUI || window.TON_CONNECT_UI?.TonConnectUI;
+    // Бібліотека може експортуватись як:
+    // - window.TonConnectUI (старі версії)
+    // - window.TON_CONNECT_UI.TonConnectUI (нові версії)
+    let TonConnectUIClass = null;
+    
+    if (typeof window.TonConnectUI !== 'undefined') {
+      TonConnectUIClass = window.TonConnectUI;
+      console.log('Found TonConnectUI at window.TonConnectUI');
+    } else if (typeof window.TON_CONNECT_UI !== 'undefined' && window.TON_CONNECT_UI.TonConnectUI) {
+      TonConnectUIClass = window.TON_CONNECT_UI.TonConnectUI;
+      console.log('Found TonConnectUI at window.TON_CONNECT_UI.TonConnectUI');
+    }
     
     if (!TonConnectUIClass) {
       if (attempt < maxAttempts) {
