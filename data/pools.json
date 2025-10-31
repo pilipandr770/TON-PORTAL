@@ -42,9 +42,12 @@
       "url": "https://tonwhales.com/",
       "fee": 0.05,
       "min_stake_ton": 50,
-      "description": "TON Whales nominator pool - one of the first staking services",
+      "description": "⭐ Рекомендовано TON Portal: Офіційний номінатор пул від TON Foundation. Найбільший та найбезпечніший.",
+      "recommended": true,
+      "recommended_badge": "⭐ Наш вибір",
       "audits": [
-        "https://tonwhales.com/security"
+        "https://tonwhales.com/security",
+        "https://github.com/ton-blockchain/nominator-pool"
       ],
       "docs_url": "https://tonwhales.com/staking",
       "faq_url": "https://tonwhales.com/staking#faq",

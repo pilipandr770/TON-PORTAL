@@ -1,0 +1,51 @@
+{
+  "recommended_pool": {
+    "id": "ton-whales-recommended",
+    "name": "TON Whales Pool",
+    "badge": "⭐ Рекомендовано TON Portal",
+    "type": "native",
+    "address": "EQDFvnxuyA2ogNPOoEj1lu968U8_eFpz2G9DXBPkPRjEctGF",
+    "url": "https://tonvalidators.org",
+    "fee": 0.04,
+    "min_stake_ton": 10000,
+    "apy_range": "5-8%",
+    "description": "Офіційний номінатор пул від TON Foundation. Найбільший та найбезпечніший варіант для стейкінгу.",
+    "features": [
+      "Повний аудит безпеки",
+      "Open-source контракт",
+      "50+ активних валідаторів",
+      "99.9% uptime",
+      "Працює з 2022 року"
+    ],
+    "audits": [
+      "https://github.com/ton-blockchain/nominator-pool"
+    ],
+    "docs_url": "https://docs.ton.org/participate/network-maintenance/nominators",
+    "telegram": "https://t.me/tonvalidators",
+    "verified": true,
+    "recommended_by": "TON Staking Portal",
+    "recommended_date": "2025-10-31",
+    "why_recommended": [
+      "Найбільший пул з найкращою репутацією",
+      "Офіційний контракт TON Foundation",
+      "Найнижчий fee серед великих пулів (4%)",
+      "Максимальна безпека та прозорість"
+    ]
+  },
+  "alternatives": {
+    "for_small_amounts": [
+      {
+        "name": "Bemo Finance",
+        "min_stake_ton": 1,
+        "type": "lst",
+        "reason": "Для сум від 1 TON з ліквідністю"
+      },
+      {
+        "name": "Hipo",
+        "min_stake_ton": 50,
+        "type": "lst",
+        "reason": "Баланс між доступністю та прибутковістю"
+      }
+    ]
+  }
+}

@@ -119,6 +119,11 @@ def dashboard_direct():
                           app_id=app_id,
                           return_url=return_url)
 
+@app.route("/recommended-pool")
+def recommended_pool():
+    """Детальна інформація про рекомендований пул"""
+    return render_template("recommended-pool.html", title="Рекомендований пул")
+
 @app.route("/test-tonconnect")
 def test_tonconnect():
     return render_template("test-tonconnect.html", title="TonConnect Test")
@@ -373,6 +378,20 @@ def api_pools():
     except Exception as e:
         logger.exception("Error loading pools")
         return jsonify({"error": "Pools not available", "details": str(e)}), 500
+
+@app.route("/api/recommended-pool")
+def api_recommended_pool():
+    """
+    Повертає рекомендований пул TON Staking Portal
+    """
+    try:
+        config_path = os.path.join(app.root_path, "recommended_pools", "config.json")
+        with open(config_path, "r", encoding="utf-8") as f:
+            config = json.load(f)
+        return jsonify(config["recommended_pool"])
+    except Exception as e:
+        logger.exception("Error loading recommended pool")
+        return jsonify({"error": "Recommended pool not available"}), 500
 
 # ---- OpenAPI docs ----
 @app.route("/docs")
