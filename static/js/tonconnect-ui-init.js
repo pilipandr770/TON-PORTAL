@@ -57,20 +57,64 @@
       const tonConnectUI = new TonConnectUIClass({
         manifestUrl: window.location.origin + '/tonconnect-manifest.json',
         buttonRootId: 'tonconnect-ui-button',
-        // опційно: theme: 'DARK' | 'LIGHT' | 'SYSTEM'
+        actionsConfiguration: {
+          twaReturnUrl: window.location.origin
+        },
+        walletsListConfiguration: {
+          includeWallets: [
+            {
+              appName: "tonkeeper",
+              name: "Tonkeeper",
+              imageUrl: "https://tonkeeper.com/assets/tonconnect-icon.png",
+              aboutUrl: "https://tonkeeper.com",
+              universalLink: "https://app.tonkeeper.com/ton-connect",
+              bridgeUrl: "https://bridge.tonapi.io/bridge",
+              platforms: ["ios", "android", "chrome", "firefox"]
+            },
+            {
+              appName: "mytonwallet",
+              name: "MyTonWallet",
+              imageUrl: "https://static.mytonwallet.io/icon-256.png",
+              aboutUrl: "https://mytonwallet.io",
+              universalLink: "https://connect.mytonwallet.org",
+              bridgeUrl: "https://tonconnectbridge.mytonwallet.org/bridge",
+              platforms: ["chrome", "windows", "macos", "linux"]
+            }
+          ]
+        }
       });
 
       console.log('TonConnect UI instance created successfully with button');
+      console.log('Manifest URL:', window.location.origin + '/tonconnect-manifest.json');
       
-      // Додаткове логування для діагностики
-      tonConnectUI.connectionRestored.then(restored => {
-        console.log('Connection restored:', restored);
-      });
+      // Логування підключення
+      console.log('Waiting for wallet connection...');
+      console.log('TonConnectUI instance:', tonConnectUI);
+      console.log('Current wallet:', tonConnectUI.wallet);
+      console.log('Connected:', tonConnectUI.connected);
+      
+      // Перевірка стану через 2 секунди
+      setTimeout(() => {
+        console.log('=== Status check after 2s ===');
+        console.log('Connected:', tonConnectUI.connected);
+        console.log('Wallet:', tonConnectUI.wallet);
+      }, 2000);
 
     // Коли статус з'єднання змінюється — оновлюємо інтерфейс
     tonConnectUI.onStatusChange(async (walletInfo) => {
       console.log('=== onStatusChange triggered ===');
+      console.log('Timestamp:', new Date().toISOString());
       console.log('walletInfo:', walletInfo);
+      console.log('walletInfo type:', typeof walletInfo);
+      console.log('walletInfo keys:', walletInfo ? Object.keys(walletInfo) : 'null');
+      
+      if (!walletInfo) {
+        console.log('❌ walletInfo is null/undefined');
+      } else if (!walletInfo.account) {
+        console.log('❌ walletInfo.account is missing');
+      } else {
+        console.log('✅ walletInfo has account:', walletInfo.account);
+      }
       
       const statusEl = document.getElementById('wallet-status');
       const addrEl = document.getElementById('addr');

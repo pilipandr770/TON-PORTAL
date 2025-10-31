@@ -77,16 +77,20 @@ def set_security_headers(resp):
     # CSP: дозволяємо локальні скрипти + unpkg + ton-connect registry + bridge servers для гаманців
     resp.headers["Content-Security-Policy"] = (
         "default-src 'self'; "
-        "img-src 'self' data: https://ton-connect.github.io https://*.tonkeeper.com https://*.tonhub.com; "
+        "img-src 'self' data: https://ton-connect.github.io https://*.tonkeeper.com https://*.tonhub.com https://static.mytonwallet.io; "
         "style-src 'self' 'unsafe-inline'; "
         "script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net; "
         "connect-src 'self' "
         "https://ton-connect.github.io "
         "https://toncenter.com https://testnet.toncenter.com "
         "https://bridge.tonapi.io wss://bridge.tonapi.io "
+        "https://tonconnectbridge.mytonwallet.org wss://tonconnectbridge.mytonwallet.org "
+        "https://connect.mytonwallet.org "
         "https://*.tonkeeper.com wss://*.tonkeeper.com "
+        "https://app.tonkeeper.com "
         "https://*.wallet.tg wss://*.wallet.tg "
-        "https://*.tonhub.com wss://*.tonhub.com;"
+        "https://*.tonhub.com wss://*.tonhub.com "
+        "https://api.defillama.com;"
     )
     return resp
 
